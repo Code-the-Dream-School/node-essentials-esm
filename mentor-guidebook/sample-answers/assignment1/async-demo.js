@@ -1,43 +1,85 @@
-const fs = require('fs');
-const path = require('path');
-
-const filePath = path.join(__dirname, 'sample-files', 'sample.txt');
+import fs from "fs";
+import path from "path";
 
 // Write a sample file for demonstration
-fs.writeFileSync(filePath, 'Hello, async world!');
+fs.writeFile(
+  path.join(import.meta.dirname, "sample-files", "sample.txt"),
+  "Hello, async world!",
+  (err) => {
+    if (err) {
+      console.error("Error writing file:", err);
+    } else {
+      // 1. Callback style
+      fs.readFile(
+        path.join(import.meta.dirname, "sample-files", "sample.txt"),
+        "utf8",
+        (err, data) => {
+          if (err) {
+            console.error("Error reading file at 1:", err);
+          } else {
+            console.log("callback: ", data);
+            // 2. Promise style
+            const readWithPromise = async (fn) => {
+              return new Promise((resolve, reject) => {
+                fs.readFile(path.join(import.meta.dirname,"sample-files", fn), "utf8", (err, data) => {
+                  if (err) {
+                    reject(err);
+                  }
+                  resolve(data);
+                });
+              });
+            };
+            readWithPromise("sample.txt")
+              .then((data) => {
+                console.log("promise: ", data);
+                // 3. async await style
+                const run = async () => {
+                  try {
+                    data = await readWithPromise("sample.txt");
+                    console.log("async await: ", data);
+                  } catch (err) {
+                    console.log("Error reading file at 3: ", err);
+                  }
+                };
+                run();
+              })
+              .catch((err) => console.error("error reading file at 2", err));
+          }
+        },
+      );
+    }
+  },
+);
 
-// 1. Callback style
-fs.readFile(filePath, 'utf8', (err, data) => {
-  if (err) return console.error('Callback error:', err);
-  console.log('Callback read:', data);
-
-  // Callback hell example (in comments):
-  /*
-  fs.readFile('a.txt', (err, dataA) => {
-    fs.readFile('b.txt', (err, dataB) => {
-      fs.readFile('c.txt', (err, dataC) => {
-        // ...
-      });
-    });
-  });
-  */
-
-  // 2. Promise style
-  fs.promises.readFile(filePath, 'utf8')
-    .then(data => {
-      console.log('Promise read:', data);
-
-      // 3. Async/Await style
-      (async () => {
-        try {
-          const data = await fs.promises.readFile(filePath, 'utf8');
-          console.log('Async/Await read:', data);
-        } catch (err) {
-          console.error('Async/Await error:', err);
-        }
-      })();
-    })
-    .catch(err => {
-      console.error('Promise error:', err);
-    });
-}); 
+// Callback hell example (test and leave it in comments):
+// const doClose = (fd) => {
+//     fs.close(fd, (err) => {
+//         if (err) console.error("couldn't close file");
+//     })
+// }
+// fs.open(path.join(__dirname, 'sample1.txt'), 'w', (err, fd) => {
+//   if (err) {
+//     console.log("error opening sample1: ", err)
+//   } else {
+//     fs.write(fd, "line 1\n", (err) => {
+//       if (err) {
+//         console.error("couldn't write line 1", err);
+//         doClose(fd);
+//       } else {
+//         fs.write(fd, "line 2\n", (err) => {
+//           if (err) {
+//             console.error("couldn't write line 2", err)
+//             doClose(fd);
+//           } else {
+//             fs.write(fd, "line 3\n", (err) => {
+//               if (err) {
+//                 console.error("couldn't write line 3", err);
+//               }
+//             })
+//             doClose(fd);
+//           }
+//         })
+//       }
+//     })
+//   }
+// })

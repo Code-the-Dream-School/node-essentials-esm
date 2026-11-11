@@ -1,42 +1,33 @@
-# Node.js Fundamentals – Solution
+# Node.js Fundamentals
 
 ## What is Node.js?
-Node.js is a runtime environment that allows you to run JavaScript code outside of a browser, built on Chrome's V8 JavaScript engine. It enables server-side scripting and is commonly used for building APIs, web servers, and command-line tools.
+
+Node.js is an implementation of JavaScript that runs native to the operating system. That is, instead of running in a sandbox (protected environment) within a browser like Chrome or Safari, it is a runtime environment that may be invoked directly from the command line of the OS.
 
 ## How does Node.js differ from running JavaScript in the browser?
-- Node.js runs on the server, not in the browser.
-- Node provides access to the file system, network, and OS, while browsers restrict access for security.
-- Node uses CommonJS modules by default, while browsers use ES Modules (with some support for CommonJS via bundlers).
-- Node does not have browser-specific APIs like `window` or `document`.
+
+JavaScript in the browser has access to the resources of the page, in particular, the DOM. It can be used to update web page elements dynamically, so as to display information to the user. It can also make remote API calls. With Node.js, there is no DOM to interpret or to update. However, Node can act as the server end of a network connection, can access the local file system, can access process information, and can maintain its own set of secrets for resource access, whereas JavaScript in the browser has no way to store secrets.
 
 ## What is the V8 engine, and how does Node use it?
-The V8 engine is Google's open-source JavaScript engine, used in Chrome. Node.js uses V8 to compile and execute JavaScript code on the server, providing fast performance and access to low-level system resources.
+
+The V8 engine is the runtime core of JavaScript, in both the browser and in Node. Node calls this engine when performing operations such as API calls with fetch, or when writing to the console with console.log, just as JavaScript browser does, but with a different set of capabilities. The V8 engine manages the event loop within JavaScript, so that a single threaded program can perform asynchronous operations.
 
 ## What are some key use cases for Node.js?
-- Building RESTful APIs
-- Real-time applications (e.g., chat apps)
-- Command-line tools
-- Streaming applications
-- Microservices
+
+One common use is to implement web serving, perhaps web pages (which may contain their own JavaScript, the latter running the browser and not in Node). It may also implement REST APIs within the web serving engine, or other kinds of network APIs over non-HTTP protocols. These APIs may access protected resources of the file system or of a database. It can be also used to write utility programs to run from the command line.
 
 ## Explain the difference between CommonJS and ES Modules. Give a code example of each.
 
-**CommonJS (default in Node.js):**
-```js
-// math.js
-module.exports.add = (a, b) => a + b;
+By default, Node uses CommonJS. The most important difference is the use of `require()` instead of `import` to load functions and values exported from other modules. For Node, ES modules either are given a file extension of `.mjs` or are specified with `type: "module"`. ES is the direction, and we need to convert this class to it, but our testing engine, Jest, doesn't work well with ES, so we'd need to substitute a different test engine.
 
-// app.js
-const math = require('./math');
-console.log(math.add(2, 3));
+**CommonJS (default in Node.js):**
+
+```js
+const fs = require("fs");
 ```
 
 **ES Modules (supported in modern Node.js):**
-```js
-// math.mjs
-export function add(a, b) { return a + b; }
 
-// app.mjs
-import { add } from './math.mjs';
-console.log(add(2, 3));
-``` 
+```js
+import fs from "node:fs";
+```

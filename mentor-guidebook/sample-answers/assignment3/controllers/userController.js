@@ -1,49 +1,27 @@
-exports.register = async (req, res) => {
-  // Check if user already exists
-  const existingUser = global.users.find(
-    (user) => user.email === req.body?.email,
-  );
-  if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-
-  // Create new user
-  const newUser = { ...req.body };
-  global.users.push(newUser);
-  global.user_id = newUser;
-
-  res.status(201).json({
-    name: newUser.name,
-    email: newUser.email,
-  });
-};
-
-exports.logon = async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
-  }
-
-  // Find user
-  const user = global.users.find(
-    (u) => u.email === email && u.password === password,
-  );
-
-  if (!user) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  // Set logged on user
+const register = async (req, res) => {
+  const { name, email, password } = req.body;
+  const user = { name, email, password };
+  global.users.push(user);
   global.user_id = user;
-
-  res.status(200).json({
-    name: user.name,
-    email: user.email,
-  });
+  const { password: _, ...userWithoutPassword } = user;
+  res.status(201).json(userWithoutPassword);
 };
 
-exports.logoff = async (req, res) => {
+const logon = async (req, res) => {
+  const { email, password } = req.body;
+  const user = global.users.find(
+    (user) => email == user.email && password == user.password,
+  );
+  if (!user) {
+    return res.status(401).json({ message: "Logon failed" });
+  }
+  global.user_id = user;
+  res.status(200).json({ name: user.name, email: user.email });
+};
+
+const logoff = async (req, res) => {
   global.user_id = null;
-  res.sendStatus(200);
+  res.status(200).end();
 };
+
+export { register, logon, logoff };

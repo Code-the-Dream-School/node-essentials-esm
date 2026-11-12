@@ -1,15 +1,6 @@
-const errorHandlerMiddleware = (err, req, res, next) => {
-  console.error(
-    "Internal server error: ",
-    err.constructor.name,
-    JSON.stringify(err, ["name", "message", "stack"]),
-  );
+const serverError = async (err, req, res, next) => {
+    res.status(500).json({message: "A server error occurred"})
+    console.error("A server error occurred: ", err)
+}
 
-  if (!res.headersSent) {
-    return res
-      .status(500)
-      .json({ message: "An internal server error occurred." });
-  }
-};
-
-module.exports = errorHandlerMiddleware;
+export default serverError

@@ -22,8 +22,4 @@ class UnauthorizedError extends Error {
   }
 }
 
-module.exports = {
-  ValidationError,
-  NotFoundError,
-  UnauthorizedError,
-};
+export { ValidationError, NotFoundError, UnauthorizedError };

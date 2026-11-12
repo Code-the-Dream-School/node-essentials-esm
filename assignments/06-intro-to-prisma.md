@@ -202,6 +202,12 @@ DATABASE_URL="<paste the TEST_DATABASE_URL value from .env>" npx prisma migrate 
 
 Do not change the schema with manual SQL statements. You will also use `deploy` with the production database you create for Internet deployment in Lesson 10. Never use schema `reset` with the production database because it deletes all data.
 
+As you have done a migration, you must generate the client once more:
+
+```bash
+npx prisma generate
+```
+
 ### 2. Create Prisma Database Connection
 
 #### a. Create Database Client File

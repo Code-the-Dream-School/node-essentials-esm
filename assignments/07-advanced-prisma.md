@@ -31,31 +31,6 @@ The REST calls your application supports should still work the same way, so your
 
 ### 1. Add Priority Field to Schema
 
-#### Before You Start: Check Your Relation Field Names
-
-If you started Assignment 6 before the relation names were standardized, your schema may use `tasks Task[]` and `user User`. You do not need to restart Assignment 6 or recreate your database. Before continuing, make sure these two relation lines use the exact field names shown here:
-
-```prisma
-model User {
-  // Other fields...
-  Task Task[]
-}
-
-model Task {
-  // Other fields...
-  User User @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-```
-
-Changing a Prisma relation field name changes the property exposed by Prisma Client, but it does not rename a database table or column. After making this change, run:
-
-```bash
-npx prisma format
-npx prisma generate
-```
-
-The controller examples and tests in this assignment use `User` and `Task` exactly as written.
-
 #### a. Update Prisma Schema
 
 Add a `priority` field to your Task model. Open `prisma/schema.prisma` and update the Task model. Use exactly as written for the new `priority` line — the field name `priority`, default `"medium"`, and type `@db.VarChar(10)` must match:
@@ -68,7 +43,7 @@ model Task {
   priority    String   @default("medium") @db.VarChar(10) // Add this line
   userId      Int       @map("user_id")
   createdAt   DateTime @default(now()) @db.Timestamp(6) @map("created_at")
-  User        User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user        User     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   @@unique([id, userId])
   @@map("tasks")
 }
@@ -78,10 +53,11 @@ model Task {
 
 #### b. Run Migration
 
-After updating the schema, create and apply a migration:
+After updating the schema, create and apply a migration, and then regenerate the client.
 
 ```bash
 npx prisma migrate dev --name add_priority_field
+npx prisma generate
 ```
 
 Then apply the migration to your test database:
@@ -92,9 +68,16 @@ DATABASE_URL="<paste the TEST_DATABASE_URL value from .env>" npx prisma migrate 
 
 Prisma reads only `DATABASE_URL` from `schema.prisma`. This command temporarily gives `DATABASE_URL` the connection string stored as `TEST_DATABASE_URL` in your `.env` file, so the migration is applied to the test database without changing your `.env` file.
 
-**Important:** Run `npx prisma migrate dev --name <someMigrationName>` when a schema change modifies the database, as the new `priority` field does. A relation field rename by itself only requires `npx prisma generate`. Every time you migrate the development database, migrate the test database too with the command above.
+**Important:** Run 
 
-**Note:** After adding the priority field, make sure your task creation method in `taskController.js` includes `priority` in the `select` statement. Tasks must have a `priority` field that defaults to "medium" when not specified. Your taskSchema validation must handle this — use `priority: Joi.string().valid("low", "medium", "high").default("medium")`.
+```bash
+npx prisma migrate dev --name <someMigrationName>
+npx prisma generate
+```
+
+when a schema change modifies the database, as the new `priority` field does. A relation field rename by itself only requires `npx prisma generate`. Every time you migrate the development database, migrate the test database too with the command above.
+
+**Note:** After adding the priority field, make sure your task creation method in `taskController.js` includes `priority` in the `select` statement. Tasks must have a `priority` field that defaults to "medium" when not specified. Your taskSchema validation must handle this — use `priority: Joi.string().valid("low", "medium", "high").default("medium")`.  Your patchTaskSchema must also be updated -- but you do not set a default priority for this case.
 
 ### 2. Implement Eager Loading with Include
 
@@ -141,7 +124,7 @@ If you choose to implement it, create a user show method that includes tasks usi
 
 ```js
 // In userController.js (if you have a show method)
-exports.show = async (req, res) => {
+const show = async (req, res) => {
   const userId = parseInt(req.params.id);
   
   if (isNaN(userId)) {
@@ -378,7 +361,7 @@ const tasks = await prisma.task.findMany({
 Create a new file named `controllers/analyticsController.js`. Require Prisma at the top, just like you did in your other controllers in Assignment 6. Use exactly as written:
 
 ```js
-const prisma = require("../db/prisma");
+import prisma from "../db/prisma.js";
 ```
 
 #### b. User Productivity Analytics Endpoint
@@ -708,7 +691,7 @@ When you create multiple records from user input, validate each record before in
 
 ```js
 // Bulk create with validation
-exports.bulkCreate = async (req, res, next) => {
+const bulkCreate = async (req, res, next) => {
   const { tasks } = req.body;
 
   // Validate the tasks array

@@ -1,7 +1,6 @@
-const userSchema = require("../validation/userSchema").userSchema;
-
-const crypto = require("crypto");
-const util = require("util");
+import userSchema from "../validation/userSchema.js";
+import crypto from "crypto";
+import util from "util";
 const scrypt = util.promisify(crypto.scrypt);
 
 async function hashPassword(password) {
@@ -17,63 +16,36 @@ async function comparePassword(inputPassword, storedHash) {
   return crypto.timingSafeEqual(keyBuffer, derivedKey);
 }
 
-exports.register = async (req, res) => {
-  const { error, value } = userSchema.validate(req.body, { abortEarly: false });
-
+const register = async (req, res) => {
+  const { error, value } = userSchema.validate(req.body, {
+    abortEarly: false,
+  });
   if (error) {
-    return res.status(400).json({
-      message: "Validation failed",
-      details: error.details,
-    });
+    return res.status(400).json({ message: error.message });
   }
-
-  const { email, name, password } = value;
-
-  // Check if user already exists
-  const existingUser = global.users.find((user) => user.email === email);
-  if (existingUser) {
-    return res.status(400).json({ message: "User already exists" });
-  }
-  const hashedPassword = await hashPassword(password);
-
-  // Create new user
-  const newUser = { email, name, hashedPassword };
-  global.users.push(newUser);
-  global.user_id = newUser;
-
-  res.status(201).json({
-    email,
-    name,
+  const { password: _, ...valueWithoutPassword } = value;
+  global.users.push({
+    ...valueWithoutPassword,
+    hashedPassword: await hashPassword(value.password),
   });
+  global.user_id = value;
+  res.status(201).json(valueWithoutPassword);
 };
 
-exports.logon = async (req, res) => {
+const logon = async (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password are required" });
+  const user = global.users.find((user) => email == user.email);
+  if (!user || !(await comparePassword(password, user.hashedPassword))) {
+    return res.status(401).json({ message: "Logon failed" });
   }
 
-  // Find user
-  const user = global.users.find((u) => u.email === email);
-  let goodCredentials = false;
-  if (user) {
-    goodCredentials = await comparePassword(password, user.hashedPassword);
-  }
-
-  if (!goodCredentials) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  // Set logged on user
   global.user_id = user;
-  res.status(200).json({
-    name: user.name,
-    email: user.email,
-  });
+  res.status(200).json({ name: user.name, email: user.email });
 };
 
-exports.logoff = async (req, res) => {
+const logoff = async (_req, res) => {
   global.user_id = null;
-  res.sendStatus(200);
+  res.status(200).end();
 };
+
+export { register, logon, logoff };

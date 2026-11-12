@@ -1,45 +1,55 @@
-const express = require("express");
-const prisma = require("./db/prisma");
-const userRoutes = require("./routes/userRoutes");
-const taskRoutes = require("./routes/taskRoutes");
-const authMiddleware = require("./middleware/auth");
-const errorHandler = require("./middleware/error-handler");
-const notFound = require("./middleware/not-found");
+import express from "express";
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Routes
-app.use("/api/users", userRoutes);
-app.use("/api/tasks", authMiddleware, taskRoutes);
+// const timeRouter from "./routes/timeRoutes");
 
-// Health check endpoint
-app.get("/health", async (req, res) => {
+// app.use("/api", timeRouter);
+
+// app.get("/", (req, res) => {
+//   res.send("Hello, World!");
+// });
+
+// app.post("/testpost", (req, res) => {
+//   res.status(200).json({
+//     message: "POST route works",
+//   });
+// });
+// const pool from "./db/pg-pool");
+import prisma from "./db/prisma.js";
+
+// global.tasks = [];
+// global.users = [];
+global.user_id = null;
+
+import authMiddleware from "./middleware/auth.js";
+import taskRouter from "./routes/taskRoutes.js";
+
+app.use("/api/tasks", authMiddleware, taskRouter);
+import userRouter from "./routes/userRoutes.js";
+import notFound from "./middleware/not-found.js";
+import errorHandler from "./middleware/error-handler.js";
+
+app.use("/api/users", userRouter);
+app.get("/health", async (_req, res) => {
   try {
-    await prisma.$queryRaw("SELECT 1");
+    // await pool.query("SELECT 1");
+    await prisma.$queryRaw`SELECT 1`;
     res.json({ status: "ok", db: "connected" });
   } catch (err) {
     res
       .status(500)
-      .json({ status: "error", db: "not connected", error: err.message });
+      .json({ message: `db not connected, error: ${err.message}` });
   }
 });
 app.use(notFound);
 app.use(errorHandler);
 
-const server = app.listen(port, (error) => {
-  if (error) {
-    if (error.code === "EADDRINUSE") {
-      console.error(`Port ${port} is already in use.`);
-    } else {
-      console.error("Server startup error:", error);
-    }
-    process.exit(1);
-    return;
-  }
+const port = process.env.PORT || 3000;
 
+const server = app.listen(port, () => {
   console.log(`Server is listening on port ${port}...`);
 });
 
@@ -51,6 +61,7 @@ async function shutdown(code = 0) {
   try {
     await new Promise((resolve) => server.close(resolve));
     console.log("HTTP server closed.");
+    // await pool.end();
     // If you have DB connections, close them here
     await prisma.$disconnect();
     console.log("Prisma disconnected");
@@ -74,4 +85,4 @@ process.on("unhandledRejection", (reason) => {
   shutdown(1);
 });
 
-module.exports = { server, app };
+export { app, server };

@@ -1,18 +1,8 @@
-const express = require("express");
+import express from "express";
+import anaController from "../controllers/analyticsController.js";
 const router = express.Router();
-const {
-  getUserAnalytics,
-  getUsersWithStats,
-  searchTasks,
-} = require("../controllers/analyticsController");
 
-// GET /api/analytics/users/:id - User productivity analytics
-router.get("/users/:id", getUserAnalytics);
-
-// GET /api/analytics/users - Users with task statistics and pagination
-router.get("/users", getUsersWithStats);
-
-// GET /api/analytics/tasks/search - Task search with raw SQL
-router.get("/tasks/search", searchTasks);
-
-module.exports = router;
+router.get("/users", anaController.getUsersWithStats);
+router.get("/users/:id", anaController.getUserAnalytics);
+router.get("/tasks/search", anaController.searchTasks);
+export default router;

@@ -1,4 +1,4 @@
-const http = require("http");
+import http from "http";
 
 const htmlString = `
 <!DOCTYPE html>
@@ -52,7 +52,7 @@ const server = http.createServer((req, res) => {
         sendJson(res, 200, {
           weReceived: parsedBody,
         });
-      } catch (error) {
+      } catch {
         sendJson(res, 400, {
           message: "Invalid JSON.",
         });

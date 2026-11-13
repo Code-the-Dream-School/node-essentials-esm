@@ -1,18 +1,12 @@
-const express = require('express');
+import express from "express";
+import {
+  getUsersWithStats,
+  getUserAnalytics,
+  searchTasks,
+} from "../controllers/analyticsController.js";
 const router = express.Router();
-const { 
-  getUserAnalytics, 
-  getUsersWithTaskStats, 
-  searchTasks 
-} = require('../controllers/analyticsController');
 
-
-router.get('/users/:id', getUserAnalytics);
-
-
-router.get('/users', getUsersWithTaskStats);
-
-
-router.get('/tasks/search', searchTasks);
-
-module.exports = router;
+router.get("/users", getUsersWithStats);
+router.get("/users/:id", getUserAnalytics);
+router.get("/tasks/search", searchTasks);
+export default router;

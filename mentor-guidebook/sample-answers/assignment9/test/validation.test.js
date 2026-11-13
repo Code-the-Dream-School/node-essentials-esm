@@ -1,5 +1,6 @@
-const { userSchema } = require("../validation/userSchema");
-const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
+import userSchema from "../validation/userSchema.js";
+import { taskSchema, patchTaskSchema } from "../validation/taskSchema.js";
+import { it, describe, expect } from "vitest";
 
 describe("user object validation tests", () => {
   it("1. doesn't permit a trivial password", () => {

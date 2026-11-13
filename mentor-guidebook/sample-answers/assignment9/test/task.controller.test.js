@@ -1,16 +1,17 @@
-require("dotenv").config();
+import "../setenv.js"
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-const prisma = require("../db/prisma");
-const EventEmitter = require('events').EventEmitter;
-const httpMocks = require("node-mocks-http");
-const {
+import prisma from "../db/prisma.js";
+import { EventEmitter } from "events";
+import httpMocks from "node-mocks-http";
+import {
   index,
   show,
   create,
   update,
   deleteTask,
-} = require("../controllers/taskController");
-const waitForRouteHandlerCompletion = require("./waitForRouteHandlerCompletion");
+} from "../controllers/taskController.js";
+import waitForRouteHandlerCompletion from "./waitForRouteHandlerCompletion.js";
+import { it, describe, expect, beforeAll, afterAll } from "vitest";
 
 // a few useful globals
 let user1 = null;

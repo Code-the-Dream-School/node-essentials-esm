@@ -1,31 +1,27 @@
-require("dotenv").config();
+import "../setenv.js"
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-const prisma = require("../db/prisma");
-const jwtMiddleware = require("../middleware/jwtMiddleware")
-const httpMocks = require("node-mocks-http");
-const EventEmitter = require('events').EventEmitter;
-const { register, logon, logoff } = require("../controllers/userController");
-const waitForRouteHandlerCompletion = require("./waitForRouteHandlerCompletion.js")
-const jwt = require("jsonwebtoken");
+import prisma from "../db/prisma.js";
+import jwtMiddleware from "../middleware/jwtMiddleware.js"
+import httpMocks from "node-mocks-http";
+import  { EventEmitter } from "events";
+import { register, logon, logoff } from "../controllers/userController.js";
+import waitForRouteHandlerCompletion from "./waitForRouteHandlerCompletion.js";
+import jwt from "jsonwebtoken";
+import { it, describe, expect, beforeAll, afterAll } from "vitest";
 let saveReq;
 
 // a few useful globals
 let saveRes = null;
 let saveData = null;
 
-const cookie = require("cookie");
 function MockResponseWithCookies() {
   const res = httpMocks.createResponse({
-  eventEmitter: EventEmitter,
-});
+    eventEmitter: EventEmitter,
+  });
+  res.setCookieList = [];
   res.cookie = (name, value, options = {}) => {
-    const serialized = cookie.serialize(name, String(value), options);
-    let currentHeader = res.getHeader("Set-Cookie");
-    if (currentHeader === undefined) {
-      currentHeader = [];
-    }
-    currentHeader.push(serialized);
-    res.setHeader("Set-Cookie", currentHeader);
+    const cookieObject = { name, value, options };
+    res.setCookieList.push(cookieObject);
   };
   return res;
 }
@@ -62,12 +58,11 @@ describe("testing logon, register, and logoff", () => {
     expect(saveRes.statusCode).toBe(200); // success!
   });
   it("35. A string in the Set-Cookie array starts with jwt=.", () => {
-    const setCookieArray = saveRes.get("Set-Cookie");
-    jwtCookie = setCookieArray.find((str) => str.startsWith("jwt="));
+    jwtCookie = saveRes.setCookieList.find(cookie => cookie.name === "jwt");
     expect(jwtCookie).toBeDefined();
   });
   it("36. That string contains HttpOnly;.", () => {
-    expect(jwtCookie).toContain("HttpOnly");
+    expect(jwtCookie.options.httpOnly).toBeDefined();
   });
   it("37. returns the expected name.", () => {
     saveData = saveRes._getJSONData();
@@ -85,9 +80,10 @@ describe("testing logon, register, and logoff", () => {
     expect(saveRes.statusCode).toBe(200);
   });
   it("40. The logoff clears the cookie.", () => {
-    const setCookieArray = saveRes.get("Set-Cookie");
-    jwtCookie = setCookieArray.find((str) => str.startsWith("jwt="));
-    expect(jwtCookie).toContain("Jan 1970");
+    jwtCookie = saveRes.setCookieList.find(cookie => cookie.name === "jwt");
+    expect(jwtCookie.options.expires).toBeDefined();
+    const oneYearAgo = new Date().getFullYear()-1;
+    expect(new Date(jwtCookie.options.expires).getFullYear()).toBeLessThan(oneYearAgo); // already expired!
   });
   it("41. A logon attempt with a bad password returns a 401", async () => {
     const req = httpMocks.createRequest({

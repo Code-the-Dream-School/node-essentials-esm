@@ -1,10 +1,11 @@
-require("dotenv").config();
-const request = require("supertest");
+import "../setenv.js"
+import request from "supertest";
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-const prisma = require("../db/prisma");
+import prisma from "../db/prisma.js";
+import { it, describe, expect, beforeAll, afterAll } from "vitest";
 let agent;
 let saveRes;
-const { app, server } = require("../app");
+import { app, server } from "../app.js";
 
 beforeAll(async () => {
   // clear database

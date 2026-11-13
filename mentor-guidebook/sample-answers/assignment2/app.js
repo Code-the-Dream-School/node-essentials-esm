@@ -1,5 +1,5 @@
-const express = require("express");
-const timeRouter = require("./routes/timeRoutes");
+import express from "express";
+import timeRouter from "./routes/timeRoutes.js";
 
 const app = express();
 
@@ -67,4 +67,4 @@ async function shutdown(code = 0) {
 process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 
-module.exports = { app, server };
+export { app, server };

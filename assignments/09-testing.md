@@ -9,46 +9,24 @@ This assignment uses the following packages. Most of them have already been inst
 - vitest
 - supertest
 - node-mocks-http
-- eslint-plugin-jest
-- globals
-- cookies
 
 Run `npm install --save-dev` for each package to make sure you have them.
 
-You have hopefully been using eslint to check your code for problems. Jest can confuse eslint because Jest tests use globals like `expect()` and `describe()` that you do not declare yourself. Add the following to `eslint.config.js` at the bottom of the `defineConfig` array to fix this problem. Use exactly as written:
+You have hopefully been using eslint to check your code for problems. Vitest can confuse eslint, but the node-homework eslint configuration file `eslint.config.js` has been set up for you to solve these issues.
 
-```js
-    {
-    // update this to match your test files
-    files: ['**/*.spec.js', '**/*.test.js'],
-    plugins: { jest: pluginJest },
-    languageOptions: {
-      globals: pluginJest.environments.globals.globals,
-    },
-    rules: {
-      'jest/no-disabled-tests': 'warn',
-      'jest/no-focused-tests': 'error',
-      'jest/no-identical-title': 'error',
-      'jest/prefer-to-have-length': 'warn',
-      'jest/valid-expect': 'error',
-    },
-  },
-```
-
-Create a `test` directory inside the `node-homework` folder. Then update `package.json` so the scripts stanza includes. Use exactly as written:
+Create a `test` directory inside the `node-homework` folder. Then update `package.json` so the scripts stanza includes. Use exactly as written:c
 
 ```json
-    "test": "NODE_ENV=test jest --testPathPatterns=test/ --verbose --maxWorkers=1 --detectOpenHandles",
+    "test": "vitest run tests/ --reporter=verbose --no-file-parallelism",
 ```
-**Note: This way of setting the NODE_ENV environment variable works on Windows Native, but only if you are running the test under Git Bash.  If you are developing in Windows Native, you should use Git Bash for all development, and you should configure VSCode so that Git Bash is the default terminal program.**
 
 This configuration runs the tests you create, but not the TDD provided with the course. You can now run `npm run test`, but it will not do anything yet because you have not created any tests.
 
-Inside the `test` directory, create a file named `validation.test.js`. All of your test files should end with `.test.js` so `jest` will find them. This file tests your validation schema, so it should start with what you see below. Use exactly as written — these import paths must match your file structure:
+Inside the `test` directory, create a file named `validation.test.js`. All of your test files should end with `.test.js` so `vitest` will find them. This file tests your validation schema, so it should start with what you see below. Use exactly as written — these import paths must match your file structure:
 
 ```js
-const { userSchema } = require("../validation/userSchema");
-const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
+import userSchema from "../validation/userSchema.js";
+import { taskSchema, patchTaskSchema } from "../validation/taskSchema.js";
 ```
 
 ### **An Aside on JavaScript Destructuring**
@@ -168,7 +146,7 @@ Some automated tests of your tests are provided. Run them with:
 npm run lesson9TDD
 ```
 
-When you run the tests of the tests, mocks of the application code are run. The mocks implement the same functions, but with intentionally introduced bugs. Your tests should identify those bugs. This is not a complete test of your tests, but it gives you useful feedback.
+When you run the tests of the tests, mocks of the application code are run. The mocks implement the same functions, but with intentionally introduced bugs. Your tests should identify those bugs. This is not a complete test of your tests, but it gives you useful feedback.  **Note: You will see test failures, even if your code is correct.** This is because your tests should declare a test failure when it hits the introduced bugs.  Look at the summary report at the end, to see if your tests are returning the results they should.
 
 ### **Check for Understanding**
 
@@ -182,22 +160,23 @@ Next, test `controllers/taskController.js`. When you test a controller, the cont
 
 2. You set the database to a known state before testing. For this assignment, we are going to delete everything, but it is also common to populate the database with known data.
 
-3. You consider **concurrency issues.** By default, several jest test files may run at the same time. If each one changes the test database, you can get conflicts and flaky failures. In your configuration, this will not happen because the test command uses `maxWorkers=1`. That prevents concurrency, but it also slows down the test process. In larger projects, another option is to make sure each test file only reads or writes to its own subset of the database. For this project, you could use different user and task records for each test file.
+3. You consider **concurrency issues.** By default, several vitest test files may run at the same time. If each one changes the test database, you can get conflicts and flaky failures. In your configuration, this will not happen because the test command uses `--no-file-parallelism`. That prevents concurrency, but it also slows down the test process. In larger projects, another option is to make sure each test file only reads or writes to its own subset of the database. For this project, you could use different user and task records for each test file.
 
 Inside your test folder, create a file named `taskController.test.js`. Use exactly as written — the `DATABASE_URL` assignment must come before loading Prisma, and the imported function names must match your controller exports:
 
 ```js
-require("dotenv").config();
+import "../setenv.js"
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL; // point to the test database!
-const prisma = require("../db/prisma");
-const httpMocks = require("node-mocks-http");
-const {
+import prisma from "../db/prisma.js";
+import httpMocks from "node-mocks-http";
+import { describe, it, expect, beforeAll, afterAll, expect } from "vitest";
+import {
   index,
   show,
   create,
   update,
   deleteTask,
-} = require("../controllers/taskController");
+} from "../controllers/taskController.js";
 
 // a few useful globals
 let user1 = null;
@@ -207,13 +186,11 @@ let saveData = null;
 let saveTaskId = null;
 ```
 
-The call to `dotenv` loads both database URLs from `.env`. Prisma reads `DATABASE_URL`, so the next line copies the value of `TEST_DATABASE_URL` into `DATABASE_URL` for this test process only. It does not modify `.env`. You must make this assignment **before** loading the Prisma client or any code that loads it; otherwise, the tests could connect to your development database.
-
-There is one confusing point about the dotenv `config()` call. The `.env` file is in the root of the project, but this test file is not. The dotenv package resolves the path using the current working directory, not the location of the current file. You run jest from the root of the project, so that is the current working directory.
+The load of `setenv.js` loads both database URLs from `.env`. Prisma reads `DATABASE_URL`, so the next line copies the value of `TEST_DATABASE_URL` into `DATABASE_URL` for this test process only. It does not modify `.env`. You must make this assignment **before** loading the Prisma client or any code that loads it; otherwise, the tests could connect to your development database.
 
 Although this is a test of the task controller, you need the `register` function from the user controller so you can create users with associated tasks.
 
-Jest provides a number of useful hooks:
+Vitest provides a number of useful hooks:
 
 - beforeAll
 - beforeEach
@@ -238,7 +215,7 @@ afterAll(() => {
 })
 ```
 
-Only do this when you are pointing to the test database. When you pass a function to `beforeAll()`, `it()`, or other jest functions, you can declare it as async so you can use await. It is important to call prisma.$disconnect(). If you do not, Jest may not terminate cleanly, and you might leave a zombie process.
+Only do this when you are pointing to the test database. When you pass a function to `beforeAll()`, `it()`, or other Vitest functions, you can declare it as async so you can use await. It is important to call prisma.$disconnect(). If you do not, Vitest may not terminate cleanly, and you might leave a zombie process.
 
 Why do we need user records? Each task record has a foreign key, `userId`. If this is missing or does not match a real user record, the database returns a constraint violation. The `hashedPassword` values in this setup are not real hashed passwords, so you cannot log on with these users. That is okay because the tests only need users that tasks can belong to.
 
@@ -251,27 +228,30 @@ A route handler or middleware function might do the following:
 - Throw an error.
 - None of the above. If a route handler or middleware function does not do any of these, it is not behaving correctly, and your test should catch that.
 
-To know what happened, call the function and check the result. The function might be async. It might also call `res.json()` or `next()` from inside a callback. Your test needs to call the function and wait for it to finish. This gets tricky when completion happens inside a callback or when the code calls `next()`. If you are writing tests first, the source code might not even exist yet.
+To know what happened, you need call the function and check the result. The function might be async. It might also call `res.json()` or `next()` from inside a callback. Your test needs to call the function and wait for it to finish. This gets tricky when completion happens after an async function or inside a callback or when the code calls `next()`. If you are writing tests first, the source code might not even exist yet.
 
 You should use the following utility function. Use exactly as written — save this as `test/waitForRouteHandlerCompletion.js`:
 
 ```js
+import { vi } from "vitest";
+
 const waitForRouteHandlerCompletion = async (func, req, res) => {
   let next;
-  const promise = new Promise((resolve, reject) => {
-    next = jest.fn((error) => {
-      if (error) return reject(error);
+  const done = new Promise((resolve, reject) => {
+    next = vi.fn((err) => {
+      if (err) return reject(err);
       resolve();
     });
     res.on("finish", () => {
       resolve();
     });
   });
+  done.catch(() => {});
   await func(req, res, next);
-  await promise;
+  await done;
   return next;
 };
-module.exports = waitForRouteHandlerCompletion;
+export default waitForRouteHandlerCompletion;
 ```
 
 Create a file in your `/node-homework/test` directory named `waitForRouteHandlerCompletion.js`, with the code above. You will call this helper from several tests. You are about to test the create() function of the task controller. Use the helper like this:
@@ -280,15 +260,15 @@ Create a file in your `/node-homework/test` directory named `waitForRouteHandler
 const next = await waitForRouteHandlerCompletion(create, req, res);
 ```
 
-Here is what this helper does. It creates a promise that resolves when either `create()` sends the response or `create()` calls next(). The next() function is built with `jest.fn()`. If `create()` calls next(), the callback passed to `jest.fn()` runs. Response objects also emit a "finish" event when a response is sent, so the helper resolves the promise in that case too.
+Here is what this helper does. It creates a promise that resolves when either `create()` sends the response or `create()` calls next(). The next() function is built with `vitest.fn()`. If `create()` calls next(), the callback passed to `vitest.fn()` runs. Response objects also emit a "finish" event when a response is sent, so the helper resolves the promise in that case too.
 
-Then the helper awaits `create()`, awaits the promise, and returns next(). If `create()` throws an error, `waitForRouteHandlerCompletion()` throws that error, and you can catch it in your test or let Jest catch it. A useful thing about a function created with `jest.fn()` is that you can check whether it has been called:
+Then the helper awaits `create()`, awaits the promise, and returns next(). If `create()` throws an error, `waitForRouteHandlerCompletion()` throws that error, and you can catch it in your test or let vitest catch it. A useful thing about a function created with `vitest.fn()` is that you can check whether it has been called:
 
 ```js
 expect(next).toHaveBeenCalled()
 ```
 
-When you test middleware functions, you can check whether they called next(). You can also inspect the arguments passed to next(), which helps when the tested function calls the error handler. If no exception is thrown and next() has not been called, then `res` contains the finished result after `await waitForRouteHandlerCompletion()`, and you can make assertions on it. If the function is badly behaved, the promise might not resolve, and Jest will time out. That timeout identifies the problem.
+When you test middleware functions, you can check whether they called next(). You can also inspect the arguments passed to next(), which helps when the tested function calls the error handler. If no exception is thrown and next() has not been called, then `res` contains the finished result after `await waitForRouteHandlerCompletion()`, and you can make assertions on it. If the function is badly behaved, the promise might not resolve, and Vitest will time out. That timeout identifies the problem.
 
 You do not have to understand every detail of this helper yet. Use it in your tests and add a require() statement for it.
 
@@ -336,7 +316,7 @@ This is still a valuable test case, but now it should expect and catch that spec
 
 If you run the test now, it will pass. However, if the code under test stops throwing an error later, the catch block will be skipped, and the test would still report success.
 
-To make sure the test really verifies the error, add expect.assertions(1) right before the try block. This tells Jest that the test must execute exactly one expect() statement, the one inside the catch block, to be considered a true pass.
+To make sure the test really verifies the error, add expect.assertions(1) right before the try block. This tells Vitest that the test must execute exactly one expect() statement, the one inside the catch block, to be considered a true pass.
 
 ## **More Tests of the Tasks Controller**
 
@@ -427,7 +407,7 @@ Create another stanza for testing the update and delete of tasks.
 
 `32.` Retrieving user1's tasks now returns a 404.
 
-This is a lot of tests, but larger projects often have test suites with thousands of test cases. This example shows the kinds of behavior a typical test suite needs to cover.
+This is a lot of tests, but larger projects often have test suites with thousands of test cases. This example shows the kinds of behavior a typical test suite needs to cover.  You only need about six or seven lines per test.
 
 Run the tests and make sure all of them pass.
 
@@ -440,32 +420,27 @@ We want to test logon, but logon sets a cookie. If that cookie is not set, authe
 Create another file in the test directory named `user.controller.test.js`. It should start with:
 
 ```js
-require("dotenv").config();
+import "../setenv.js"
 process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
-const waitForRouteHandlerCompletion = require("./waitForRouteHandlerCompletion");
-const prisma = require("../db/prisma");
-const httpMocks = require("node-mocks-http");
-const { register, logoff, logon } = require("../controllers/userController");
-const jwtMiddleware = require("../middleware/jwtMiddleware");
-const jwt = require("jsonwebtoken");
+import waitForRouteHandlerCompletion from "./waitForRouteHandlerCompletion.js";
+import prisma from "../db/prisma.js";
+import httpMocks from "node-mocks-http";
+import { register, logoff, logon } from "../controllers/userController.js";
+import jwtMiddleware from "../middleware/jwtMiddleware.js";
+import jwt from "jsonwebtoken";
 
 // a few useful globals
 let saveRes = null;
 let saveData = null;
 
-const cookie = require("cookie");
-function MockResponseWithCookies() {
+cfunction MockResponseWithCookies() {
   const res = httpMocks.createResponse({
     eventEmitter: EventEmitter,
   });
+  res.setCookieList = [];
   res.cookie = (name, value, options = {}) => {
-    const serialized = cookie.serialize(name, String(value), options);
-    let currentHeader = res.getHeader("Set-Cookie");
-    if (currentHeader === undefined) {
-      currentHeader = [];
-    }
-    currentHeader.push(serialized);
-    res.setHeader("Set-Cookie", currentHeader);
+    const cookieObject = { name, value, options };
+    res.setCookieList.push(cookieObject);
   };
   return res;
 }
@@ -681,7 +656,7 @@ After the await for the agent completes, you get a res object. This differs a li
 Run this test to make sure it works. You can run this individual test with:
 
 ```bash
-npx jest test/user.function.test.js
+npx vitest test/user.function.test.js
 ```
 
 Then, add the following additional tests:
@@ -702,10 +677,10 @@ In this case, that value is in saveRes.body.
 
 Hint: The logoff route is protected. What do you need to put in the request header? Where can you get the needed value? Why did you not have to do this for the controller test?
 
-Then verify that all your tests run without error. If you want to run just this test, use:
+Then verify that all your tests run without error. If you want to run just this test file, use:
 
 ```bash
-npx jest test/user.function.test.js
+npx vitest test/user.function.test.js
 ```
 
 Also run the TDD, the test of the tests, if you have not run it recently. Check whether it identifies any problems with your tests.
@@ -719,7 +694,8 @@ The same idea applies to network tests with supertest. Supertest tests do not ne
 You can check code coverage as follows:
 
 ```bash
-NODE_ENV=test npx jest --testPathPatterns=test/ --verbose --maxWorkers=1 --coverage
+npm install -D @vitest/coverage-v8
+npx vitest run tests/ --reporter=verbose --no-file-parallelism --coverage
 ```
 
 How far did you get towards 100%?
@@ -730,7 +706,7 @@ Even with strong code coverage, tests may still miss some failure modes. These t
 
 ### **Check For Understanding**
 
-1. You should not be able to logoff if you are already logged off. Why? Do you need a test for this?
+1. You should not be able to logoff without a CSRF token.  (There is no protection in your code for this.) Why? Do you need a test for this?
 
 2. Suppose you want to write a function test for task operations using supertest.  How would you go about it?
 
@@ -740,7 +716,7 @@ Even with strong code coverage, tests may still miss some failure modes. These t
 
 ### **Answers**
 
-1. Logoff is a post operation that could be triggered by cross-site request forgery. A test is needed to verify that this protection is in place. An attacker may not gain much by triggering logoff, but it is still best practice to block the attack.
+1. Logoff is a post operation that could be triggered by cross-site request forgery. A test is needed to verify that this protection is in place. An attacker may not gain much by triggering logoff, but it is still best practice to block the attack.  How would you change the code to block this attack?
 
 2. To do a task operations functional test, first check that task operations cannot be performed without being logged on. Then log on. Then check that data-changing operations, POST, PATCH, and DELETE, cannot be done without a CSRF token. Next, test each task operation for correct responses: POST /tasks, PATCH /task/:id, GET /tasks, GET /tasks/:id, and DELETE /tasks/:id. Also check that PATCH, GET, and DELETE operations do not allow access to data that belongs to another user. This is the minimum, but it may be enough if there are strong unit tests.
 
@@ -775,7 +751,7 @@ At the end of the run, read the custom report. It will show sections for the req
 - `The following tests did not report the expected results`
 - `All implemented tests gave the expected results`
 
-The best result is not "all Jest tests passed." The best result is that the final report says your implemented tests gave the expected results. Some expected results are passes, and some expected results are failures, because the mock files are intentionally wrong in specific ways.
+The best result is not "all tests passed." The best result is that the final report says your implemented tests gave the expected results. Some expected results are passes, and some expected results are failures, because the mock files are intentionally wrong in specific ways.
 
 If the report says a test was `not implemented`, check that the `it()` description starts with the correct test number, such as `1.`, `14.`, or `46.`. The reporter uses those numbers to match your tests to the assignment requirements.
 
@@ -841,8 +817,7 @@ Record a short video (3-5 minutes) on YouTube, Loom, or a similar platform. Shar
 
 ### Required Deliverables/Tasks
 
-1. **ESLint Jest config** — `eslint.config.js` includes the Jest plugin configuration (use exactly as written in the setup section)
-2. **Test script** — `package.json` has a `"test"` script that runs Vitest against the `test/` directory with `NODE_ENV=test` (use exactly as written)
+1. **Test script** — `package.json` has a `"test"` script that runs Vitest against the `test` directory (use exactly as written)
 3. **Validation test file** — `test/validation.test.js` exists with correct imports for `userSchema`, `taskSchema`, and `patchTaskSchema` (use exactly as written)
 4. **Validation tests 1–7** — User schema tests: trivial password rejected (1), email required (2), invalid email rejected (3), password required (4), name required (5), name length validated (6), valid object passes (7)
 5. **Validation tests 8–13** — Task schema tests: title required (8), `isCompleted` validated (9), `isCompleted` defaults to `false` (10), `true` preserved (11); patch schema: title not required (12), `isCompleted` stays undefined (13)

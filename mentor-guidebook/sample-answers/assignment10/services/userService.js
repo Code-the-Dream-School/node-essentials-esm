@@ -1,5 +1,5 @@
-const crypto = require("crypto");
-const { OAuth2Client } = require("google-auth-library");
+import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // https://stackoverflow.com/questions/9719570/generate-random-password-string-with-5-letters-and-3-numbers-in-javascript
@@ -39,7 +39,7 @@ const googleGetUserInfo = async (code) => {
   return {name, email, isEmailVerified };
 };
 
-module.exports = {
+export {
   generateUserPassword,
   googleGetUserInfo,
 };

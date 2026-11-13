@@ -1,21 +1,20 @@
-const { StatusCodes } = require("http-status-codes");
-const prisma = require("../db/prisma");
-exports.getUserAnalytics = async (req, res, next) => {
+import prisma from "../db/prisma.js";
+
+const getUserAnalytics = async (req, res) => {
   // Parse and validate user ID
   const userId = parseInt(req.params.id);
   if (isNaN(userId)) {
     // ... handle invalid ID
-    return res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ error: "Invalid userId passed in request to userStats" });
+    return res.status(400).json({ message: "No userId was specified." });
   }
-
-  // Check if user exists
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    select: { id: true },
   });
   if (!user) {
-    return res.status(404).json({ message: "User not found" });
+    return res
+      .status(404)
+      .json({ message: "There is no registered user with that id." });
   }
 
   // Use groupBy to count tasks by completion status
@@ -37,7 +36,7 @@ exports.getUserAnalytics = async (req, res, next) => {
       priority: true,
       createdAt: true,
       userId: true,
-      User: {
+      user: {
         select: { name: true },
       },
     },
@@ -48,7 +47,9 @@ exports.getUserAnalytics = async (req, res, next) => {
   // Calculate weekly progress using groupBy
   // First, calculate the date from one week ago
   // Hint: Use new Date() and setDate() to subtract 7 days
-  const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
   // ... you need to calculate this
 
   // Then use groupBy with a where clause filtering by createdAt >= oneWeekAgo
@@ -71,10 +72,8 @@ exports.getUserAnalytics = async (req, res, next) => {
   return;
 };
 
-exports.getUsersWithStats = async (req, res, next) => {
-  // Parse pagination parameters (similar to how you did in the task index method above)
+const getUsersWithStats = async (req, res) => {
   // Hint: Parse page and limit from req.query, calculate skip
-  // Basic pagination
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const skip = (page - 1) * limit;
@@ -83,14 +82,14 @@ exports.getUsersWithStats = async (req, res, next) => {
   // Note: In Prisma, you need to use include for relations, then transform the result
   const usersRaw = await prisma.user.findMany({
     include: {
-      Task: {
+      tasks: {
         where: { isCompleted: false },
         select: { id: true },
         take: 5,
       },
       _count: {
         select: {
-          Task: true,
+          tasks: true,
         },
       },
     },
@@ -114,8 +113,9 @@ exports.getUsersWithStats = async (req, res, next) => {
 
   // Build pagination object with page, limit, total, pages, hasNext, hasPrev
   // Hint: Use Math.ceil() for pages, compare page * limit with total for hasNext
-  // Build pagination object with complete metadata
   const pagination = {
+    // ... you need to build this object
+    // ... you need to build this object
     page,
     limit,
     total: totalUsers,
@@ -125,6 +125,9 @@ exports.getUsersWithStats = async (req, res, next) => {
   };
 
   // Return users and pagination
+  // if (!totalUsers) {
+  //   return res.status(404).json({ message: "No users are registered." });
+  // }
   res.status(200).json({
     // ... you need to return users and pagination
     users,
@@ -132,19 +135,17 @@ exports.getUsersWithStats = async (req, res, next) => {
   });
 };
 
-exports.searchTasks = async (req, res, next) => {
+const searchTasks = async (req, res) => {
   // Validate search query
-  const searchQuery = req.query?.q;
+  const searchQuery = req.query.q;
   if (!searchQuery || searchQuery.trim().length < 2) {
-    return res.status(StatusCodes.BAD_REQUEST).json({
+    return res.status(400).json({
       error: "Search query must be at least 2 characters long",
     });
   }
 
   // Get limit from query (default to 20)
-  const limit = parseInt(req.query?.limit) || 20; //...parse from req.query
-  const page = parseInt(req.query.page) || 1;
-  const skip = (page - 1) * limit;
+  const limit = parseInt(req.query.limit) || 20; //...parse from req.query
 
   // Construct search patterns outside the query for proper parameterization
   const searchPattern = `%${searchQuery}%`;
@@ -178,9 +179,16 @@ exports.searchTasks = async (req, res, next) => {
 
   // Return results with query and count
   // Hint: The test expects results array, query string, and count number
-  res.json({
+
+  // if (!searchResults.length) {
+  //   return res.status(404).json({ message: "No matching tasks were found." });
+  // }
+  res.status(200).json({
     results: searchResults,
     query: searchQuery,
     count: searchResults.length,
   });
+  // ... you need to return the response object
 };
+
+export { searchTasks, getUsersWithStats, getUserAnalytics };

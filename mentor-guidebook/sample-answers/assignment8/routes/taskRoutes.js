@@ -1,21 +1,16 @@
-const express = require("express");
-const router = express.Router();
-const {
-  index,
-  show,
+import express from "express";
+import {
   create,
+  show,
+  index,
   update,
   deleteTask,
-  bulkCreate, // Add this import
-} = require("../controllers/taskController");
-
-router.use(require("../middleware/jwtMiddleware"));
-
-router.post("/bulk", bulkCreate);
-router.get("/", index);
-router.get("/:id", show);
+} from "../controllers/taskController.js";
+const router = express.Router();
+//create, index, show, update, deleteTask
 router.post("/", create);
+router.get("/:id", show);
+router.get("/", index);
 router.patch("/:id", update);
 router.delete("/:id", deleteTask);
-
-module.exports = router;
+export default router;

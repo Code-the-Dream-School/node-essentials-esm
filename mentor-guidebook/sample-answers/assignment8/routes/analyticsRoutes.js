@@ -1,20 +1,12 @@
-const express = require("express");
-const router = express.Router();
-const {
-  getUserAnalytics,
+import express from "express";
+import {
   getUsersWithStats,
+  getUserAnalytics,
   searchTasks,
-} = require("../controllers/analyticsController");
+} from "../controllers/analyticsController.js";
+const router = express.Router();
 
-router.use(require("../middleware/jwtMiddleware"));
-
-// GET /api/analytics/users/:id - User productivity analytics
-router.get("/users/:id", getUserAnalytics);
-
-// GET /api/analytics/users - Users with task statistics and pagination
 router.get("/users", getUsersWithStats);
-
-// GET /api/analytics/tasks/search - Task search with raw SQL
+router.get("/users/:id", getUserAnalytics);
 router.get("/tasks/search", searchTasks);
-
-module.exports = router;
+export default router;

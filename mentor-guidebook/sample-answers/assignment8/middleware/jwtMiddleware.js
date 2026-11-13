@@ -1,5 +1,5 @@
-const jwt = require("jsonwebtoken");
-const { StatusCodes } = require("http-status-codes");
+import jwt from "jsonwebtoken";
+import { StatusCodes } from "http-status-codes";
 
 const send401 = (res) => {
   res
@@ -7,7 +7,7 @@ const send401 = (res) => {
     .json({ error: "No user is authenticated." });
 };
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
   const token = req?.cookies?.jwt;
   if (!token) {
     return send401(res);

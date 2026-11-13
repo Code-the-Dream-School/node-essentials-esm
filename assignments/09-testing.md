@@ -6,7 +6,7 @@ Add this assignment to `node-homework`. This assignment builds on your work from
 
 This assignment uses the following packages. Most of them have already been installed:
 
-- jest
+- vitest
 - supertest
 - node-mocks-http
 - eslint-plugin-jest
@@ -842,7 +842,7 @@ Record a short video (3-5 minutes) on YouTube, Loom, or a similar platform. Shar
 ### Required Deliverables/Tasks
 
 1. **ESLint Jest config** — `eslint.config.js` includes the Jest plugin configuration (use exactly as written in the setup section)
-2. **Test script** — `package.json` has a `"test"` script that runs Jest against the `test/` directory with `NODE_ENV=test` (use exactly as written)
+2. **Test script** — `package.json` has a `"test"` script that runs Vitest against the `test/` directory with `NODE_ENV=test` (use exactly as written)
 3. **Validation test file** — `test/validation.test.js` exists with correct imports for `userSchema`, `taskSchema`, and `patchTaskSchema` (use exactly as written)
 4. **Validation tests 1–7** — User schema tests: trivial password rejected (1), email required (2), invalid email rejected (3), password required (4), name required (5), name length validated (6), valid object passes (7)
 5. **Validation tests 8–13** — Task schema tests: title required (8), `isCompleted` validated (9), `isCompleted` defaults to `false` (10), `true` preserved (11); patch schema: title not required (12), `isCompleted` stays undefined (13)

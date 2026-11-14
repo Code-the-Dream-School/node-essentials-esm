@@ -149,11 +149,11 @@ DELETE /:id -> deleteTask
 In `app.js`, require the auth middleware and task router:
 
 ```js
-const authMiddleware = require("./middleware/auth");
+import authMiddleware from "./middleware/auth.js";
 ```
 
 ```js
-const taskRouter = require("./routes/taskRoutes");
+import taskRouter from "./routes/taskRoutes.js";
 ```
 
 Mount the task router with auth middleware:
@@ -236,7 +236,7 @@ name: Joi.string().trim().min(3).max(30).required()
 Your file will have this general structure. Use exactly as written: the export name `userSchema`. The specific Joi method chains shown are examples — adapt them to enforce the validation rules described above:
 
 ```js
-const Joi = require("joi");
+import Joi from "joi";
 
 const userSchema = Joi.object({
   email: ...,
@@ -244,7 +244,7 @@ const userSchema = Joi.object({
   password: ...,
 });
 
-module.exports = { userSchema };
+export default userSchema;
 ```
 
 ### 9. Create `validation/taskSchema.js`
@@ -277,7 +277,7 @@ Joi.object({ ... }).min(1)
 Your file will have this general structure. Use exactly as written: the export names `taskSchema` and `patchTaskSchema`. The specific Joi method chains are examples:
 
 ```js
-const Joi = require("joi");
+import Joi from "joi";
 
 const taskSchema = Joi.object({
   title: ...,
@@ -289,7 +289,7 @@ const patchTaskSchema = Joi.object({
   isCompleted: ...,
 }).min(1);
 
-module.exports = { taskSchema, patchTaskSchema };
+export { taskSchema, patchTaskSchema };
 ```
 
 ### 10. Validate User Registration
@@ -301,7 +301,7 @@ Validation should happen before the controller checks for duplicate users or sto
 Import the user schema:
 
 ```js
-const { userSchema } = require("../validation/userSchema");
+import userSchema from "../validation/userSchema.js";
 ```
 
 In `register`, validate `req.body` before creating a user:
@@ -332,8 +332,8 @@ exports.register = async (req, res) => {
 In `controllers/userController.js`, add these imports and helper setup:
 
 ```js
-const crypto = require("crypto");
-const util = require("util");
+import crypto from "crypto";
+import util from "util";
 const scrypt = util.promisify(crypto.scrypt);
 ```
 
@@ -396,7 +396,7 @@ const goodCredentials = user && await comparePassword(password, user.hashedPassw
 Import `taskSchema`:
 
 ```js
-const { taskSchema, patchTaskSchema } = require("../validation/taskSchema");
+const { taskSchema, patchTaskSchema } from "../validation/taskSchema");
 ```
 
 The `create` function should:
@@ -419,7 +419,7 @@ const newTask = { id: taskCounter(), userId: global.user_id.email, ...value };
 The validation belongs at the start of `create`, before creating the task:
 
 ```js
-exports.create = async (req, res) => {
+const create = async (req, res) => {
   if (!req.body) req.body = {};
   const { error, value } = taskSchema.validate(...);
   if (error) return res.status(400).json(...);

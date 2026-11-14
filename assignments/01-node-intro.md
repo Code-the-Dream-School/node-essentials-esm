@@ -3,7 +3,7 @@
 ## Learning Objectives
 - Understand what Node.js is and how it differs from browser JavaScript
 - Explore Node.js architecture and the V8 engine
-- Use Node.js global objects (`global`, `process`, `__dirname`)
+- Use Node.js global objects (`global`, `process`, `import.meta.dirname`)
 - Identify key use cases for Node.js (APIs, CLIs, real-time apps)
 - Understand module systems (CommonJS vs ES Modules)
 - Grasp asynchronous JavaScript concepts: blocking vs non-blocking I/O, the event loop, callbacks, promises, async/await
@@ -55,8 +55,8 @@ These tasks are required. The core tests run with `npm run tdd assignment1a`.
 
 ### 2. Exploring Node Globals
 - Create a script (`globals-demo.js`) that logs the following with **exact formatting**:
-  - `console.log('__dirname:', __dirname);`
-  - `console.log('__filename:', __filename);`
+  - `console.log('import.meta.dirname:', import.meta.dirname);`
+  - `console.log('import.meta.dirname:', import.meta.dirname);`
   - `console.log('Process ID:', process.pid);` 
   - `console.log('Platform:', process.platform);` 
   - A custom global variable: `global.myCustomVar = 'Hello, global!';` followed by `console.log('Custom global variable:', global.myCustomVar);`
@@ -75,9 +75,9 @@ These tasks are required. The core tests run with `npm run tdd assignment1a`.
 **Console Output Examples:**
 The first line of this example output is from running the callback async pattern, the second from the promise async pattern, and the third from the async/await async pattern.
 ```
-Hello, async world!
-Hello, async world!
-Hello, async world!
+callback: Hello, async world!
+promise: Hello, async world!
+async await: Hello, async world!
 ```
 #### If You Get Stuck
 
@@ -163,7 +163,7 @@ Record a short video (3–5 minutes) on YouTube, Loom, or similar platform. Shar
    - Discuss the syntax differences (require vs import, module.exports vs export)
 
 3. **What are the main differences between Node and browser JavaScript environments?**
-   - Compare global objects (window vs global, process, __dirname, __filename)
+   - Compare global objects (window vs global, process, import.meta.dirname, import.meta.filename)
    - Discuss file system access capabilities
    - Explain the event loop and asynchronous programming in Node
 
@@ -194,7 +194,7 @@ Record a short video (3–5 minutes) on YouTube, Loom, or similar platform. Shar
 ### Required Deliverables/Tasks
 
 - **Task 1 — Node.js Fundamentals** — `node-fundamentals.md` filled in with the student's own answers (not the `Answer here..` placeholders) to all five questions, including a CommonJS example and an ES Modules example.
-- **Task 2 — Exploring Node Globals** — `globals-demo.js` logs `__dirname`, `__filename`, `process.pid`, `process.platform`, and a custom global variable. `Use exactly as written (later tasks depend on these names)`: the exact `console.log` label text, capitalization ("Process ID", "Platform"), and one space after each colon, as specified in the task.
+- **Task 2 — Exploring Node Globals** — `globals-demo.js` logs `import.meta.dirname`, `import.meta.filename`, `process.pid`, `process.platform`, and a custom global variable. `Use exactly as written (later tasks depend on these names)`: the exact `console.log` label text, capitalization ("Process ID", "Platform"), and one space after each colon, as specified in the task.
 - **Task 3 — Asynchronous JavaScript** — `async-demo.js` programmatically creates `sample-files/sample.txt` with the content `Hello, async world!`, then reads it via callback, Promise, and async/await, with try/catch error handling and callback-hell explained in comments. `Use exactly as written`: the phrase `Hello, async world!` must appear in the output for each of the three patterns. The sample console output block is `Example — illustrative formatting only`.
 - **Task 4 — Node Core Modules** — `core-modules-demo.js` uses `os` to log platform/CPU/memory, uses `path` to join and log two paths, and uses `fs.promises` to write and read `sample-files/demo.txt`. The console output example is `Example — adapt to your own system`: platform, CPU, memory, and path values will differ per machine; only the types of information logged should match, not the literal values.
 - **Video submission** — a 3–5 minute video answering the three listed questions about Node.js vs. browser JS, CommonJS vs. ES Modules, and Node/browser environment differences.

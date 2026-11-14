@@ -139,7 +139,7 @@ Node provides backend tools instead:
 
 Because Node runs on the server, it can safely use secrets such as database credentials or API keys. Browser JavaScript should not store secrets because users can inspect frontend code.
 
-## **1.4 Syntax Differences: CommonJS Modules**
+## **1.4 Syntax Differences: CommonJS Modules (Legacy)**
 
 Browser-side JavaScript and React often use ES Module syntax. You have probably seen imports that look like this, where the file asks for specific tools from another package or file:
 
@@ -147,7 +147,7 @@ Browser-side JavaScript and React often use ES Module syntax. You have probably 
 import { useState, useEffect } from "react";
 ```
 
-In this course, we will use CommonJS syntax.
+In this course, we will use ESM syntax as well -- the same as you have used in your React course. There is, however, a big legacy of Node applications that run CommonJS, so you need to know something about this.
 
 CommonJS imports code with `require()`. In this style, `require()` loads another file or package, and destructuring pulls out the specific values you want to use:
 
@@ -174,13 +174,13 @@ module.exports = { add, multiply };
 If you save that file as `mathUtils.js`, another file in the same folder can import those functions. Once imported, they can be used like regular functions:
 
 ```js
-const { add, multiply } = require("./mathUtils");
+const { add, multiply } from "./mathUtils");
 
 console.log(add(2, 3));
 console.log(multiply(4, 5));
 ```
 
-Node also supports ES Modules (in files that use the `.mjs` extension, or with extra configuration), but this course will use CommonJS unless told otherwise. Mixing the two styles in one project can get messy, so we will stick with CommonJS.
+It is possible to mix ESM and CommonJS modules in the same project, but we won't do that.  This course uses ESM throughout.
 
 ## **1.5 Important Node Globals**
 
@@ -191,17 +191,15 @@ Important ones include:
 - `process`: Information about the currently running Node process.
 - `process.env`: Environment variables.
 - `process.argv`: Command-line arguments passed when the program starts.
-- `__dirname`: The directory where the current file lives.
-- `__filename`: The full path to the current file.
-- `console`: Includes `console.log()`.
-- `module.exports`: Controls what the current file exports.
-- `require()`: Imports built-in modules, npm packages, or local files.
+- `import.meta.dirname`: The directory where the current file lives.
+- `import.meta.filename`: The full path to the current file.
+- `console`: Includes `console.log()`.  Note that this writes to the console on the machine where Node is running, not to the browser console!
 
 Here is a small example that prints a few Node globals. You do not need to memorize the exact output, but notice that these values come from the Node runtime, not from your own code:
 
 ```js
-console.log(__dirname);
-console.log(__filename);
+console.log(import.meta.dirname);
+console.log(import.meta.filename);
 console.log(process.argv);
 console.log(process.env.NODE_ENV);
 ```
@@ -244,10 +242,10 @@ Node has official documentation for its built-in APIs:
 Built-in modules are tools that come with Node. You load them with `require()`, and each module gives you a different set of features:
 
 ```js
-const fs = require("fs");       // File system operations
-const os = require("os");       // Operating system information
-const http = require("http");   // HTTP server and client
-const path = require("path");   // File and directory paths
+import fs from "fs";       // File system operations
+import os from "os";       // Operating system information
+import http from "http";   // HTTP server and client
+import path from "path";   // File and directory paths
 ```
 
 Built-in modules do not require `npm install`.
@@ -267,7 +265,7 @@ This command downloads the package into your project so your Node code can use i
 After a package is installed, you can load it into a Node file with `require()`. The exact variable name depends on the package and how you want to use it:
 
 ```js
-const packageName = require("package-name");
+import packageName from "package-name";
 ```
 
 Before adding a package, check:
@@ -302,7 +300,7 @@ A callback is a function passed into another function so it can run later.
 In this example, `readFile()` starts the file operation and receives a callback to run when the file is ready. The callback also receives an `err` value, because file operations can fail if the file is missing or the path is wrong.
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 fs.readFile("./example.txt", "utf8", (err, content) => {
   if (err) {
@@ -376,7 +374,7 @@ File paths such as `"./example.txt"` are usually read relative to the folder whe
 You will see synchronous file system methods in examples and documentation. The word `Sync` means Node waits for the operation to finish before moving to the next line:
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 fs.writeFileSync("./message.txt", "Hello from Node");
 ```
@@ -388,7 +386,7 @@ Synchronous methods can be useful for small scripts, but you should avoid them i
 The base functions of the file system package require callbacks:
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 fs.open("./tmp/file.txt", "w", (err, fileHandle) => {
   if (err) {
@@ -435,7 +433,7 @@ Sometimes you will need to use a function that only supports callbacks. You can 
 Inside the Promise, the old callback decides what happens next. If there is an error, call `reject(err)`. If the operation succeeds, call `resolve(content)`.
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 function readTextFile(path) {
   return new Promise((resolve, reject) => {
@@ -473,7 +471,7 @@ The callback inside your wrapper should always call `resolve()` or `reject()`. O
 Most modern Node file work can use Promise-based APIs directly. This means you usually do not have to wrap callbacks yourself when reading or writing files:
 
 ```js
-const fs = require("fs/promises");
+import fs from "fs/promises";
 
 async function run() {
   try {
@@ -498,14 +496,14 @@ Node also provides `promisify()` in the built-in `util` module. It converts many
 First, import `promisify()` from `util`:
 
 ```js
-const { promisify } = require("util");
+import { promisify } from "util";
 ```
 
 If a callback-based function follows the common Node pattern `(err, result)`, you can often promisify it. In this example, `fs.readFile` becomes a new `readFile` function that works with `await`:
 
 ```js
-const fs = require("fs");
-const { promisify } = require("util");
+const fs from "fs";
+const { promisify } from "util";
 
 const readFile = promisify(fs.readFile);
 
@@ -599,7 +597,7 @@ Streams let you read or write data in chunks.
 In this example, Node reads the file piece by piece. The `.on()` method listens for stream events. Each chunk triggers a `data` event, the `end` event runs when there is nothing left to read, and the `error` event runs if something goes wrong:
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 const readStream = fs.createReadStream("./largefile.txt", {
   encoding: "utf8",
@@ -630,7 +628,7 @@ const readStream = fs.createReadStream("./largefile.txt", {
 You can also write with streams. Instead of building one huge string in memory, you can send smaller pieces to the output file as they are ready:
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 const writeStream = fs.createWriteStream("./output.txt");
 

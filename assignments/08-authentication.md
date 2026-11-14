@@ -73,8 +73,8 @@ Get a secret and store it in your `.env` file as:
 Add the following utility routine to `controllers/userController.js`. Use exactly as written — the cookie name `"jwt"`, the payload fields (`id`, `csrfToken`), the cookie flags, and the function names `cookieFlags` and `setJwtCookie` must match:
 
 ```js
-const { randomUUID } = require("crypto");
-const jwt = require("jsonwebtoken");
+import { randomUUID } from "crypto";
+import jwt = from "jsonwebtoken";
 
 const cookieFlags = (req) => {
   return {
@@ -113,8 +113,8 @@ You no longer need the old auth middleware. Delete it and remove references to i
 Replace it with `middleware/jwtMiddleware.js`. Use exactly as written — the file name `middleware/jwtMiddleware.js`, the cookie name `"jwt"`, the header name `"X-CSRF-TOKEN"`, the `req.user = { id: decoded.id }` assignment, and the 401 response must match:
 
 ```js
-const jwt = require("jsonwebtoken");
-const { StatusCodes } = require("http-status-codes");
+import jwt from "jsonwebtoken";
+import { StatusCodes } from "http-status-codes";
 
 const send401 = (res) => {
   res
@@ -122,7 +122,7 @@ const send401 = (res) => {
     .json({ message: "No user is authenticated." });
 };
 
-module.exports = async (req, res, next) => {
+export default async (req, res, next) => {
   const token = req?.cookies?.jwt;
   if (!token) {
     return send401(res);
@@ -180,7 +180,7 @@ The `jwtMiddleware` will not find the cookie in `req.cookies` unless the request
 Add this to `app.js`. Use exactly as written:
 
 ```js
-const cookieParser = require("cookie-parser");
+import cookieParser from "cookie-parser";
 app.use(cookieParser());
 ```
 
@@ -218,9 +218,9 @@ Add the following statements near the top of your `app.js`. Use exactly as writt
 
 ```js
 app.set("trust proxy", 1);
-const helmet = require("helmet");
-const { xss } = require("express-xss-sanitizer");
-const rateLimiter = require("express-rate-limit");
+import helmet from "helmet";
+import { xss } from "express-xss-sanitizer";
+import rateLimiter from "express-rate-limit";
 ```
 The “trust proxy” setting matters in production. On a service like Render.com, HTTPS is required for secure cookies. Your Express app itself may only receive HTTP traffic because the HTTPS connection is handled by a front-end proxy. Enabling “trust proxy” tells Express to trust that proxy connection so secure cookies work properly.
 

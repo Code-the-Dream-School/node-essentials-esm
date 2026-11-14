@@ -273,8 +273,8 @@ Again, replace `<paste the TEST_DATABASE_URL value from .env>` with the complete
 Create a folder in node-homework called `db`. Within it, create `pg-pool.js` with the following content. Use exactly as written — this file is imported by name throughout the app:
 
 ```javascript
-const { Pool } = require("pg");
-require("dotenv").config();
+import "./setenv.js"
+import { Pool } from "pg";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -283,8 +283,7 @@ const pool = new Pool({
 pool.on("error", (err, client) => {
   console.error("Unexpected error on idle client", err);
 });
-
-module.exports = pool;
+export default pool;
 ```
 
 This code was explained in the lesson.
@@ -296,7 +295,7 @@ Graceful shutdown was introduced as an optional task in Assignment 2. It is requ
 Near the top of `app.js`, import the connection pool:
 
 ```js
-const pool = require("./db/pg-pool");
+import pool from "./db/pg-pool.js";
 ```
 
 After the code that creates `server` with `app.listen()`, use the complete shutdown implementation below. If you completed the optional shutdown task in Assignment 2, update your existing implementation instead of adding a second one.

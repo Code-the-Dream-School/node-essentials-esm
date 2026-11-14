@@ -95,7 +95,7 @@ Tests can be grouped with `describe()`. Individual test cases use `it()` or `tes
 Jest can also test React front ends, but this assignment focuses on back end testing. A Jest test file should end with `.test.js`, and might look something like this:
 
 ```js
-const {fnA, fnB} = require("../codeFolder/someModule"); // The module to test
+import {fnA, fnB} from "../codeFolder/someModule.js"; // The module to test
 
 describe("Tests for someModule", ()=>{
    it("should return false when fnA is passed 'thisValue'", () => {
@@ -130,8 +130,8 @@ To test a web API, you also need to send HTTP requests. The `supertest` package 
 Here is a small Supertest example. This assumes your `app.js` exports `app` and `server`, which lets the test send requests to the Express app and close the server afterward:
 
 ```js
-const request = require("supertest");
-const { app, server } = require("../app");
+import request from "supertest";
+import { app, server } from "../app.js";
 
 afterAll(() => {
   server.close();

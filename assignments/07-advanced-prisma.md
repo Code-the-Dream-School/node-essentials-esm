@@ -1183,11 +1183,11 @@ Record a short video (3-5 minutes) on YouTube, Loom, or a similar platform. Shar
 
 1. **Priority field** — `prisma/schema.prisma` Task model includes a `priority` field with default `"medium"` and `@db.VarChar(10)` (use exactly as written in Task 1a)
 2. **Migration** — A migration adds the priority column to the tasks table (Task 1b)
-3. **Task index with eager loading** — `GET /api/tasks` returns tasks with a nested `User` object containing `name` and `email` (example in Task 2a — adapt to your controller)
+3. **Task index with eager loading** — `GET /api/tasks` returns tasks with a nested `user` object containing `name` and `email` (example in Task 2a — adapt to your controller)
 4. **Pagination** — `GET /api/tasks` returns a `tasks` array and a `pagination` object with `page`, `limit`, `total`, `pages`, `hasNext`, `hasPrev` (example in Task 3a — adapt to your controller)
 5. **Search filter** — `GET /api/tasks?find=<term>` filters tasks by title using case-insensitive `contains` (example in Task 3b — adapt to your controller)
 6. **User analytics** — `GET /api/analytics/users/:id` returns `taskStats` (groupBy `isCompleted`), `recentTasks` (with nested `User`), and `weeklyProgress`; returns 404 for nonexistent user (example in Task 4b — adapt to your controller)
-7. **Users with stats** — `GET /api/analytics/users` returns a `users` array (each with `_count.Task`) and a `pagination` object (example in Task 4c — adapt to your controller)
+7. **Users with stats** — `GET /api/analytics/users` returns a `users` array (each with `_count.task`) and a `pagination` object (example in Task 4c — adapt to your controller)
 8. **Transaction registration** — `POST /api/users/register` creates the user and 3 welcome tasks (`"Complete your profile"`, `"Add your first task"`, `"Explore the app"`) inside a `$transaction`; response includes `transactionStatus: "success"` (use exactly as written in Task 5a)
 9. **Bulk create** — `POST /api/tasks/bulk` accepts a `tasks` array, validates each entry, uses `createMany`, and returns `tasksCreated` and `totalRequested`; returns 400 for invalid data (use exactly as written in Task 5b)
 10. **Raw SQL search** — `GET /api/analytics/tasks/search?q=<term>` uses `$queryRaw` with parameterized queries; returns `results`, `query`, `count`; returns 400 if query is shorter than 2 characters (example in Task 6a — adapt to your controller)

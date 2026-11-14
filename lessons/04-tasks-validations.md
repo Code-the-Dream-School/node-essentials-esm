@@ -137,7 +137,7 @@ You already learned middleware in Week 3. Here, you are applying that same middl
 Create `middleware/auth.js`:
 
 ```js
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   if (!global.user_id) {
     return res.status(401).json({
       message: "Unauthorized",
@@ -153,8 +153,8 @@ The `return` matters. If the middleware sends a `401` response, it should not al
 In `app.js`, apply this middleware only to task routes:
 
 ```js
-const authMiddleware = require("./middleware/auth");
-const taskRouter = require("./routes/taskRoutes");
+import authMiddleware from "./middleware/auth.js";
+import taskRouter from "./routes/taskRoutes.js";
 
 app.use("/api/tasks", authMiddleware, taskRouter);
 ```
@@ -343,7 +343,7 @@ A user needs:
 - `password`: required, at least 8 characters, includes uppercase, lowercase, number, and special character
 
 ```js
-const Joi = require("joi");
+import Joi from "joi";
 
 const userSchema = Joi.object({
   email: Joi.string().trim().lowercase().email().required(),
@@ -358,8 +358,7 @@ const userSchema = Joi.object({
         "Password must be at least 8 characters long and include upper and lower case letters, a number, and a special character.",
     }),
 });
-
-module.exports = { userSchema };
+export default userSchema;
 ```
 
 ### **Task Schemas**
@@ -367,7 +366,7 @@ module.exports = { userSchema };
 A new task needs a title. If `isCompleted` is not provided, it should default to `false`.
 
 ```js
-const Joi = require("joi");
+import Joi from "joi";
 
 const taskSchema = Joi.object({
   title: Joi.string().trim().min(3).max(30).required(),
@@ -379,7 +378,7 @@ const patchTaskSchema = Joi.object({
   isCompleted: Joi.boolean().not(null),
 }).min(1).message("No attributes to change were specified.");
 
-module.exports = { taskSchema, patchTaskSchema };
+export { taskSchema, patchTaskSchema };
 ```
 
 The create schema and patch schema are different:
@@ -437,8 +436,8 @@ This assignment uses Node's built-in `crypto` module.
 `crypto.scrypt` uses callback style, so you will use `util.promisify()` to make it work with `async` and `await`.
 
 ```js
-const crypto = require("crypto");
-const util = require("util");
+import crypto from "crypto";
+import util from "util";
 const scrypt = util.promisify(crypto.scrypt);
 ```
 

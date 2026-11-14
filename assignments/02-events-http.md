@@ -55,27 +55,28 @@ In this file:
 - Create an `EventEmitter`.
 - Add exactly one listener for the `"time"` event.
 - When the listener receives a message, log the time message.
-- Export the emitter with `module.exports = emitter`.
+- Export the emitter with `export default emitter`.
 
 The tests import your emitter, so the emitter must be exported.
 
-Copy this code exactly as written. The test file loads events.js and expects three things: an event named "time", a listener that logs "Time received:" followed by the message, and module.exports = emitter so the test can reach your emitter.
+Copy this code exactly as written. The test file loads events.js and expects three things: an event named "time", a listener that logs "Time received:" followed by the message, and `export default emitter` so the test can reach your emitter.
 
 ```js
-const EventEmitter = require("events");
+import EventEmitter from "events";
+import esMain from 'es-main';
 const emitter = new EventEmitter();
 
 emitter.on("time", (message) => {
   console.log("Time received:", message);
 });
 
-module.exports = emitter;
+export default emitter;
 ```
 
-Then add this code to emit the `"time"` event every 5 seconds when the file is run directly with Node. Use the `require.main === module` guard exactly as shown:
+Then add this code to emit the `"time"` event every 5 seconds when the file is run directly with Node. Use the `(esMain(import.meta))` guard exactly as shown:
 
 ```js
-if (require.main === module) {
+if (esMain(import.meta)) {
   setInterval(() => {
     const currentTime = new Date().toString();
     emitter.emit("time", currentTime);
@@ -83,7 +84,7 @@ if (require.main === module) {
 }
 ```
 
-The `if (require.main === module)` check matters. It lets you run the file directly, but it prevents the timer from starting when the test imports your file.
+The `if (esMain(import.meta))` check matters. It lets you run the file directly, but it prevents the timer from starting when the test imports your file.
 
 Try it manually:
 
@@ -222,7 +223,7 @@ npm install express
 Use this Express app code. The routes, responses, and the `{ app, server }` export must match exactly — the tests depend on them:
 
 ```js
-const express = require("express");
+import express from "express";
 
 const app = express();
 
@@ -244,7 +245,7 @@ const server = app.listen(port, () => {
   console.log(`Server is listening on port ${port}...`);
 });
 
-module.exports = { app, server };
+export { app, server };
 ```
 
 The export at the bottom is important. The tests use `app` and `server` to send requests and close the server after testing.
@@ -305,7 +306,7 @@ function echoBody(req, res) {
   });
 }
 
-module.exports = {
+export {
   getTime,
   echoBody,
 };
@@ -316,21 +317,21 @@ The router you create next imports these functions by name, which is why the nam
 The `routes/timeRoutes.js` file should connect route paths to those controller functions. Use this code exactly as written. The route paths `/time` and `/echo` must not change:
 
 ```js
-const express = require("express");
-const timeController = require("../controllers/timeController");
+import express from "express";
+import timeController from "../controllers/timeController.js";
 
 const router = express.Router();
 
 router.get("/time", timeController.getTime);
 router.post("/echo", timeController.echoBody);
 
-module.exports = router;
+export default router;
 ```
 
 Then update `app.js` to import and use the router:
 
 ```js
-const timeRouter = require("./routes/timeRoutes");
+import timeRouter from "./routes/timeRoutes.js";
 
 app.use("/api", timeRouter);
 ```
@@ -611,10 +612,10 @@ Answer 3 questions from Lesson 2:
 
 ### Required Deliverables/Tasks
 
-- **Task 1 — Event Emitter and Listener** — `assignment2/events.js` creates an `EventEmitter` with exactly one listener for the `"time"` event that logs the received message, and exports the emitter with `module.exports = emitter`. When run directly with Node, it emits `"time"` every 5 seconds, gated by `if (require.main === module)`. `Use exactly as written (later tasks/tests depend on these)`: the `module.exports = emitter` line and the `require.main === module` guard — the tests import this file and must not trigger the timer.
+- **Task 1 — Event Emitter and Listener** — `assignment2/events.js` creates an `EventEmitter` with exactly one listener for the `"time"` event that logs the received message, and exports the emitter with `export default emitter`. When run directly with Node, it emits `"time"` every 5 seconds, gated by `if (require.main === module)`. `Use exactly as written (later tasks/tests depend on these)`: the `export default emitter` line and the `require.main === module` guard — the tests import this file and must not trigger the timer.
 - **Task 2 — Raw Node HTTP Server** — `assignment2/sampleHTTP.js` listens on port `8000`. `GET /time` returns status `200`, `Content-Type: application/json`, and a body shaped `{ "time": "..." }` (the time value itself is not literal — any valid time string is acceptable). `GET /timePage` returns status `200`, `Content-Type: text/html; charset=utf-8`, and the exact `htmlString` given in the assignment. `Use exactly as written`: the file name `sampleHTTP.js` (exact casing) and the `htmlString` content for `/timePage`.
 - **Task 3 — Raw Node POST Route** — `POST /echo` in `sampleHTTP.js` reads the body via the `"data"`/`"end"` events, parses it with `JSON.parse()`, and returns it wrapped in `{ "weReceived": <parsed body> }`. `Example — adapt to your own test body`: the sample request/response bodies shown (`"Hello from Postman"`) illustrate the echo behavior; the response should mirror whatever valid JSON body is sent, not that literal text.
-- **Task 4 — First Express Application** — root-level `app.js` with `GET /` returning `"Hello, World!"`, `POST /testpost` returning status `200` with JSON `{ "message": "POST route works" }`, and `module.exports = { app, server }`. `Use exactly as written (tests depend on this)`: the `{ app, server }` export shape — tests use it to send requests and close the server.
+- **Task 4 — First Express Application** — root-level `app.js` with `GET /` returning `"Hello, World!"`, `POST /testpost` returning status `200` with JSON `{ "message": "POST route works" }`, and `export { app, server }`. `Use exactly as written (tests depend on this)`: the `{ app, server }` export shape — tests use it to send requests and close the server.
 - **Task 5 — Organize the Express App Layout** — `controllers/timeController.js` exports `getTime` and `echoBody`; `routes/timeRoutes.js` wires `GET /time` and `POST /echo` to those functions; `app.js` mounts that router at `/api`. `Use exactly as written (later tests depend on these names/paths)`: the function names `getTime`/`echoBody` and the resulting routes `GET /api/time` and `POST /api/echo`, per the assignment's opening note that automated tests expect specific file names and routes.
 - **Video submission** — a 3–5 minute video answering the three listed questions (Event Emitters/Listeners, HTTP module vs. Express, Express project layout).
 - **Submission** — work pushed to an `assignment2` branch with a pull request against main; PR link and video link included in the submission form.

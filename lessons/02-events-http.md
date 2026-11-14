@@ -52,7 +52,7 @@ Node uses this same idea heavily. One part of a program can emit an event, and o
 Create a file called `events-intro.js` in your `node-homework/assignment2` folder. This code creates one event emitter, registers listeners for the `"tell"` and `"error"` events, and then emits the `"tell"` event three times.
 
 ```js
-const EventEmitter = require("events");
+import EventEmitter from "events";
 const emitter = new EventEmitter();
 
 emitter.on("tell", (message) => {
@@ -93,7 +93,7 @@ An HTTP server listens on a port. A **port** is a number that helps your compute
 Create a file called `sampleHTTP.js` in your `node-homework/assignment2` folder. The uppercase `HTTP` matters because the assignment tests expect this exact file name.
 
 ```js
-const http = require("http");
+import http from "http";
 
 const server = http.createServer((req, res) => {
   if (req.method === "GET" && req.url === "/time") {
@@ -180,7 +180,7 @@ Browsers usually make `GET` requests when you type a URL into the address bar. A
 Replace the code in `sampleHTTP.js` with this version. This server checks the request method and URL path before choosing a response.
 
 ```js
-const http = require("http");
+import http from "http";
 
 const htmlString = `
 <!DOCTYPE html>
@@ -336,7 +336,7 @@ Now you will create a small Express server. This is not a full application yet. 
 Create a file called `express-intro.js` in your `node-homework/assignment2` folder. This server creates an Express app, teaches it to read JSON request bodies, defines two routes, and starts listening on port `3000`.
 
 ```js
-const express = require("express");
+import express from "express";
 
 const app = express();
 
@@ -471,8 +471,8 @@ Think of routes like doors into the application. Controllers are the rooms where
 Here is a small example of what `app.js` might do in a real project. This code imports a router and says that customer routes should live under `/customers`.
 
 ```js
-const express = require("express");
-const customerRouter = require("./routes/customerRoutes");
+import express from "express";
+import customerRouter from "./routes/customerRoutes.js";
 
 const app = express();
 
@@ -487,15 +487,15 @@ app.listen(3000, () => {
 Then the customer routes file might connect paths to controller functions.
 
 ```js
-const express = require("express");
-const customerController = require("../controllers/customerController");
+import express from "express";
+import customerController from "../controllers/customerController.js";
 
 const router = express.Router();
 
 router.get("/", customerController.getCustomers);
 router.post("/", customerController.createCustomer);
 
-module.exports = router;
+export default router;
 ```
 
 And the controller file might contain the route handlers.
@@ -514,7 +514,7 @@ function createCustomer(req, res) {
   });
 }
 
-module.exports = {
+export {
   getCustomers,
   createCustomer,
 };

@@ -44,7 +44,7 @@ Middleware functions are the pieces in the middle. They can run before route han
 Here is the common structure:
 
 ```js
-const express = require("express");
+import express from "express";
 
 const app = express();
 
@@ -62,7 +62,7 @@ const server = app.listen(port, () => {
   console.log(`Server is listening on port ${port}...`);
 });
 
-module.exports = { app, server };
+export { app, server };
 ```
 
 The important idea is that Express checks middleware and routes in the order they are registered.
@@ -286,7 +286,7 @@ If you try to `require("morgan")` before installing it, Node will throw an error
 Then you require it and use it with `app.use()`.
 
 ```js
-const morgan = require("morgan");
+import morgan from "morgan";
 
 app.use(morgan("dev"));
 ```
@@ -306,8 +306,8 @@ Third-party middleware still follows the same ordering rules. For example, `morg
 Typical setup:
 
 ```js
-const express = require("express");
-const morgan = require("morgan");
+import express from "express";
+import morgan from "morgan";
 
 const app = express();
 
@@ -331,7 +331,7 @@ In this example, the middleware adds two new properties to the request:
 - `req.startedAt`: the time when this request started being processed
 
 ```js
-const { randomUUID } = require("crypto");
+import { randomUUID } from "crypto";
 
 app.use((req, res, next) => {
   req.requestId = randomUUID();
@@ -587,7 +587,7 @@ Callback-based code works differently. A callback is a function that you give to
 Use `next(error)` to hand that error back to Express:
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 app.get("/file", (req, res, next) => {
   fs.readFile("data.txt", "utf8", (error, data) => {
@@ -635,7 +635,7 @@ class UnauthorizedError extends Error {
   }
 }
 
-module.exports = {
+export {
   ValidationError,
   NotFoundError,
   UnauthorizedError,
@@ -652,7 +652,7 @@ The important pieces are:
 Then a route can throw or pass one of these errors:
 
 ```js
-const { ValidationError, NotFoundError } = require("./errors");
+import { ValidationError, NotFoundError } from "./errors.js";
 
 app.post("/tasks", (req, res, next) => {
   const { title } = req.body;
@@ -916,7 +916,7 @@ Read this example from top to bottom. The order is the main lesson:
 - The error handler catches failures.
 
 ```js
-const express = require("express");
+import express from "express";
 
 const app = express();
 
@@ -964,7 +964,7 @@ const server = app.listen(port, () => {
   console.log(`Server is listening on port ${port}...`);
 });
 
-module.exports = { app, server };
+export { app, server };
 ```
 
 Notice the order:

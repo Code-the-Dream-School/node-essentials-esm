@@ -546,8 +546,8 @@ The additional index is needed for assignment 6.
 You will use the `pg` package, which you will install as part of the assignment. In an Express application, many requests can happen at the same time. You do not want to create a brand-new database connection for each request. Instead, you will use a pool. In your assignment, you will put the following code in a `pg-pool` module in the `db` folder.
 
 ```javascript
-const { Pool } = require('pg');
-require('dotenv').config();
+import "./setenv.js"
+import { Pool } from 'pg';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -557,14 +557,14 @@ pool.on('error', (err, client) => {
   console.error('Unexpected error on idle client', err);
 });
 
-module.exports = pool;
+export default pool;
 ```
 
 **Understanding the Code:**
 - **`Pool`**: Manages multiple database connections efficiently
 - **`connectionString`**: Uses your DATABASE_URL from environment variables
 - **`sslmode`**: Postgres hosting platforms (like the Neon one you will use) require SSL, and will have a connection string that specifies the sslmode. For local development, your socket is local so you don't need SSL.
-- **`module.exports`**: Makes the pool available to other files
+- **`export default`**: Makes the pool available to other files
 
 You also need the `pool.on('error' ...` event handling in case an idle pool connection throws an error. Without this, an unexpected pool error can disrupt your Node process.
 

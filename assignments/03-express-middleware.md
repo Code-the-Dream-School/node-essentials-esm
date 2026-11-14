@@ -266,7 +266,7 @@ GET /images/dachshund.png
 In `week-3-middleware/app.js`, export the Express app directly:
 
 ```js
-module.exports = app;
+export { app };
 ```
 
 By the end of the dog rescue exercise, your middleware should follow this order:
@@ -313,7 +313,7 @@ The `uuid` package is common in real projects, but current `uuid` is ESM-only, s
 Use the exact property name `req.requestId` and header name `X-Request-Id`. Call `next()` after setting both values so Express continues to the next middleware. You may otherwise adapt the implementation to your own style:
 
 ```js
-const { randomUUID } = require("crypto");
+import { randomUUID } from "crypto";
 
 app.use((req, res, next) => {
   req.requestId = randomUUID();
@@ -466,7 +466,7 @@ class UnauthorizedError extends Error {
   }
 }
 
-module.exports = {
+export {
   ValidationError,
   NotFoundError,
   UnauthorizedError,

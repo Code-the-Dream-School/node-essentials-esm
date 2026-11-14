@@ -559,8 +559,8 @@ Record a short video (3–5 minutes) on YouTube, Loom, or similar platform. Shar
 
 ### Required Deliverables/Tasks
 
-1. **Prisma schema** — `prisma/schema.prisma` contains `User` and `Task` models with camelCase field names, `@map`/`@@map` directives, and a `Task → User` relationship (use exactly as written in Task 1c)
-2. **Generator block** — `schema.prisma` uses `provider = "prisma-client-js"` with no custom `output` path (use exactly as written in Task 1a)
+1. **Prisma schema** — `prisma/schema.prisma` contains `User` and `Task` models with camelCase field names, `@map`/`@@map` directives, and a `Task → user` relationship (use exactly as written in Task 1c)
+2. **Generator block** — `schema.prisma` uses `provider = "prisma-client"` with am `output` path of `../generated/prisma` (use exactly as written in Task 1a)
 3. **Prisma client module** — `db/prisma.js` exports a `PrismaClient` instance with query logging in development mode (use exactly as written in Task 2a)
 4. **Health check** — `GET /health` uses `prisma.$queryRaw` and returns `{ status: 'ok', db: 'connected' }` (use exactly as written in Task 2b)
 5. **Prisma disconnect** — Shutdown handler calls `prisma.$disconnect()` (use exactly as written in Task 2b)

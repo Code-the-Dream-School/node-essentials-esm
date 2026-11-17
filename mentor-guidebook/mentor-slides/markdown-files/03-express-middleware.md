@@ -244,7 +244,7 @@ npm install morgan
 Used like middleware:
 
 ```js
-const morgan = require("morgan");
+import morgan from "morgan";
 
 app.use(morgan("dev"));
 ```

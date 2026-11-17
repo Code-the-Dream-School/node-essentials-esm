@@ -71,7 +71,7 @@ With 100 users, that's **101 queries**. That's the N+1 problem.
 // ✅ One query with a JOIN
 const users = await prisma.user.findMany({
   include: {
-    Task: true,
+    tasks: true,
   },
 });
 ```
@@ -87,7 +87,7 @@ Always prefer `include` over looping queries.
 ```js
 const usersWithActiveTasks = await prisma.user.findMany({
   include: {
-    Task: {
+    tasks: {
       where: { isCompleted: false },
       orderBy: { createdAt: "desc" },
       take: 5,

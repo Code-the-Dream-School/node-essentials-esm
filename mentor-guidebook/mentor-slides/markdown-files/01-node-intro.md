@@ -87,7 +87,7 @@ Now used for:
 
 ## Node:
 - No DOM
-- Has `process`, `__dirname`
+- Has `process`, `import.meta.dirname`
 - Can access files
 - Can open servers
 
@@ -242,8 +242,8 @@ async function readFile() {
 What do these log?
 
 ```js
-console.log(__dirname);
-console.log(__filename);
+console.log(import.meta.dirname);
+console.log(import.meta.filename);
 console.log(process.pid);
 console.log(process.platform);
 ```
@@ -255,10 +255,9 @@ What is `process`?
 # Key Node Globals
 
 - `process`
-- `__dirname`
-- `__filename`
-- `module`
-- `require()`
+- `import.meta.dirname`
+- `import.meta.filename`
+- `global`
 
 These do NOT exist in browser JS.
 
@@ -284,7 +283,7 @@ Exports:
 module.exports = { myFunction };
 ```
 
-We will use CJS.
+We will use ESM.  However, there is a large legacy of CJS Node programs, so you need to know of the alternative.
 
 ---
 
@@ -321,7 +320,7 @@ By default, Node buffers **64KB** for a stream.
 We can control the "sip size" using `highWaterMark`.
 
 ```js
-const fs = require("fs");
+import fs from "fs";
 
 const stream = fs.createReadStream("large_file.txt", {
   highWaterMark: 1024 // Limits chunk size to 1KB

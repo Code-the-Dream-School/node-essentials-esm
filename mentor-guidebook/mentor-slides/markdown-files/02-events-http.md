@@ -53,7 +53,7 @@ In chat or out loud:
 Node has a built-in `EventEmitter` class.
 
 ```js
-const EventEmitter = require("events");
+import EventEmitter from "events";
 const emitter = new EventEmitter();
 
 emitter.on("time", (message) => {
@@ -87,7 +87,7 @@ Mentor prompt:
 Node's built-in `http` module can create a server.
 
 ```js
-const http = require("http");
+import http from "http";
 
 const server = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "application/json" });
@@ -186,7 +186,7 @@ For `POST /echo`, use Postman:
 # Hello Express
 
 ```js
-const express = require("express");
+import express = from "express";
 
 const app = express();
 
@@ -214,7 +214,7 @@ const server = app.listen(port, () => {
   console.log(`Server is listening on port ${port}...`);
 });
 
-module.exports = { app, server };
+export { app, server };
 ```
 
 Why?
@@ -255,7 +255,7 @@ router.get("/time", timeController.getTime);
 In `app.js`:
 
 ```js
-const timeRouter = require("./routes/timeRoutes");
+import timeRouter from "./routes/timeRoutes.js";
 
 app.use("/api", timeRouter);
 ```
@@ -310,6 +310,8 @@ const server = app.listen(port, (error) => {
   console.log(`Server is listening on port ${port}...`);
 });
 ```
+
+Note however: You will need this code once you start using a database.  You have to clean up database connections when the app ends.
 
 Express 5 passes startup errors to the `app.listen()` callback. Check the callback argument before logging success.
 

@@ -223,7 +223,7 @@ DELETE FROM tasks WHERE user_id = 5;
 # PostgreSQL in Node: the `pg` Package
 
 ```js
-const { Pool } = require("pg");
+import { Pool } from "pg";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

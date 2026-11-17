@@ -107,7 +107,7 @@ model User {
   name           String   @db.VarChar(30)
   hashedPassword String   @db.VarChar(255) @map("hashed_password")
   createdAt      DateTime @default(now()) @map("created_at")
-  Task           Task[]
+  tasks           Task[]
   @@map("users")
 }
 ```
@@ -128,7 +128,7 @@ model Task {
   isCompleted Boolean  @default(false) @map("is_completed")
   userId      Int      @map("user_id")
   createdAt   DateTime @default(now()) @map("created_at")
-  User        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 
   @@unique([id, userId])
   @@map("tasks")
@@ -142,13 +142,14 @@ model Task {
 # Setting Up Prisma
 
 ```bash
-npm install prisma @prisma/client
-npx prisma init
+npm npm install prisma@7 --save-dev
+npm install @prisma/client@7 @prisma/adapter-pg
+npx prisma init --datasource-provider postgresql --output ../generated/prisma
 ```
 
 This creates:
 - `prisma/schema.prisma` — your schema file
-- `.env` — with `DATABASE_URL` placeholder
+- `.env` — with `DATABASE_URL` placeholder -- but you already have `.env`
 
 Point `DATABASE_URL` to your PostgreSQL database.
 
@@ -162,6 +163,8 @@ Point `DATABASE_URL` to your PostgreSQL database.
 npx prisma db pull
 npx prisma generate
 ```
+
+Note: You change the Prisma schema names to JavaScript friendly ones before you do the `generate` step.
 
 **Migration** — write schema first, create tables from it:
 
@@ -179,14 +182,21 @@ In the assignment, you'll do **both**.
 
 ```js
 // db/prisma.js
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-module.exports = prisma;
+import { PrismaClient } from "../generated/prisma/client.ts";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+const opts = { adapter };
+if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+  opts.log = ["query"]; // enable logging of SQL issued by Prisma when in dev mode
+}
+const prisma = new PrismaClient(opts);
+export default prisma
 ```
 
 ```js
 // In a controller
-const prisma = require("../db/prisma");
+import prisma from "../db/prisma.js");
 
 const user = await prisma.user.findUnique({
   where: { email: "alex@test.com" }

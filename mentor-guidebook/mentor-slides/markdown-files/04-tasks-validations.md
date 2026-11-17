@@ -313,8 +313,8 @@ Never store plain-text passwords.
 Assignment 4 uses Node's built-in modules:
 
 ```js
-const crypto = require("crypto");
-const util = require("util");
+import crypto from "crypto";
+import util from "util";
 const scrypt = util.promisify(crypto.scrypt);
 ```
 

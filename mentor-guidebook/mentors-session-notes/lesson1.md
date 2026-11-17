@@ -13,7 +13,7 @@ The updated course materials start using a **Core + Advanced** structure. Core m
 - Node runs JavaScript outside the browser.
 - Browser JavaScript is sandboxed; Node can access the local machine through modules like `fs`, `path`, and `os`.
 - Node still runs JavaScript on one main call stack, so async APIs and the event loop are important.
-- In this course, students use CommonJS: `require()` and `module.exports`.
+- In this course, students use EJS, just as in React, but with access to Node capabilities.
 - Node has built-in modules, official documentation, and third-party packages through npm.
 
 ## Suggested flow
@@ -21,7 +21,7 @@ The updated course materials start using a **Core + Advanced** structure. Core m
 1. Start with Node vs browser JavaScript.
 2. Review the call stack, event loop, and non-blocking operations.
 3. Show callback, Promise, and async/await versions of file reading.
-4. Show common globals: `__dirname`, `__filename`, `process`, and `global`.
+4. Show common globals: `import.meta.dirname`, `import.meta.filename`, `process`, and `global`.
 5. Connect built-in modules to Assignment 1: `fs`, `path`, and `os`.
 6. Explain why streams matter for large files without going too deep.
 
@@ -29,7 +29,6 @@ The updated course materials start using a **Core + Advanced** structure. Core m
 
 - Looking for `console.log()` output in the browser instead of the terminal.
 - Forgetting that async functions return Promises.
-- Mixing CommonJS and ESM syntax.
 - Creating `sample.txt` manually when the assignment asks the script to create it.
 - Failing tests because output formatting does not match exactly.
 

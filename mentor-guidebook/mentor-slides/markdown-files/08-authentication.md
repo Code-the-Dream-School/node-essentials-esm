@@ -194,7 +194,7 @@ An attacker can send your cookie — but can't read your localStorage to get the
 # Auth Middleware (Full Version)
 
 ```js
-module.exports = (req, res, next) => {
+export default (req, res, next) => {
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ message: "Unauthorized." });
 

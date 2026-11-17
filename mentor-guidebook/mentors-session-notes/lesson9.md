@@ -10,11 +10,9 @@ See https://spectrum.ieee.org/ai-coding-degrades for some cautionary tales.
 
 ## The Tools We Use in This Class
 
-Jest runs the test, and provides the implementation of various assertions (expect statements) to let you know if you got the right result.
+Vitest runs the test, and provides the implementation of various assertions (expect statements) to let you know if you got the right result.
 
-Supertest combines with Jest.  It adds the ability to send actual REST requests to your app, to see whether they are handled correctly.
-
-The next course cohort will see some changes.  We are using CJS modules.  The future is ESM for Node programs, meaning you use “include” instead of “require”, but meaning also that modules have a different internal structure.  Jest is clumsy to use with ESM – ESM support is currently experimental in Jest – so the next course cohort will use Vitest.
+Supertest combines with Vitest.  It adds the ability to send actual REST requests to your app, to see whether they are handled correctly.
 
 ## Unit Tests are Simple to Write When …
 
@@ -37,10 +35,11 @@ The next course cohort will see some changes.  We are using CJS modules.  The fu
 ## Understand This Helper Function
 
 ```js
+import { vitest } from "vitest";
 const waitForRouteHandlerCompletion = async (func, req, res) => {
   let next;
-  const promise = new Promise((resolve, reject) => {
-    next = jest.fn((error) => {
+  const done = new Promise((resolve, reject) => {
+    next = vitest.fn((error) => {
       if (error) reject(error);
       resolve();
     });
@@ -48,21 +47,22 @@ const waitForRouteHandlerCompletion = async (func, req, res) => {
       resolve();
     });
   });
+  done.catch(() => {});
   await func(req, res, next);
-  await promise;
+  await done;
   return next;
 };
-module.exports = waitForRouteHandlerCompletion;
+export default waitForRouteHandlerCompletion;
 ```
 
 ## Key Points about this Helper
 
 - We have to await the route handler or middleware, as it is probably asynchronous.
-- We have to provide a next() function.  We use jest.fn() to create that, because Jest keeps track of whether next() is called, and what parameters next() is called with.  
+- We have to provide a next() function.  We use vitest.fn() to create that, because Vitest keeps track of whether next() is called, and what parameters next() is called with.  
 - We have to use a promise to report completion, because the route handler or middleware might call next() or  res.json() within a callback.
 - We have to know when to resolve the promise. We provide an event handler, so that when the res.json() occurs, we can receive an event and resolve the promise.  For middleware, if next() is called, we resolve the promise.  But if next(error) is called, we reject the promise.
 
-Any idea why we return next? Answer: Because next was created using jest.fn(), we can check if it was called with expect(next).toHaveBeenCalled().  This is useful for testing middleware.  You can also check which parameters were passed.
+Any idea why we return next? Answer: Because next was created using vitest.fn(), we can check if it was called with expect(next).toHaveBeenCalled().  This is useful for testing middleware.  You can also check which parameters were passed.
 
 ## Other Somewhat Tricky Stuff
 

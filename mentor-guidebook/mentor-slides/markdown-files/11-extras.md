@@ -91,7 +91,7 @@ model Folder {
   id     Int    @id @default(autoincrement())
   name   String
   userId Int
-  Task   Task[]
+  tasks   Task[]
 }
 ```
 

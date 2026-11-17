@@ -30,7 +30,7 @@ Worth calling out explicitly, because it surprises people: Prisma does not do tr
 ## Common student issues
 
 - Confusing `select` and `include`. `select` picks specific fields; `include` pulls in related records. Mixing them in the same query at the same level is an error.
-- Relation field capitalization. The schema's relation field (e.g., `User` on a task) must match exactly in `select`/`include`. Capitalization bugs are common.
+- Relation field capitalization. The schema's relation field (e.g., `user` on a task) must match exactly in `select`/`include`. Capitalization bugs are common.
 - Forgetting that query parameters arrive as **strings**. `req.query.limit` is `"10"`, not `10`, and `req.query.isCompleted` is `"true"`, not a boolean. The controller has to convert them.
 - Building dynamic `where` clauses and accidentally returning everything (or nothing) when no filters are present.
 - Pagination math: off-by-one errors in `skip`/`take`, and forgetting to return total counts so the front end can build page controls.

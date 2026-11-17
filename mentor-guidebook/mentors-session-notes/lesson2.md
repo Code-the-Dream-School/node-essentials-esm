@@ -15,7 +15,7 @@ Assignment 2 now has a required **Core** section and an optional **Advanced** se
 - Request bodies in raw HTTP arrive in chunks through `"data"` and `"end"` events.
 - Postman is needed to test `POST` requests conveniently.
 - Express wraps raw HTTP with cleaner routing, body parsing, and response helpers.
-- `module.exports = { app, server }` matters because Supertest needs access to the app and tests need to close the server.
+- `export { app, server }` matters because Supertest needs access to the app and tests need to close the server.
 - Routers are mounted with prefixes, so `app.use("/api", timeRouter)` plus `router.get("/time")` becomes `GET /api/time`.
 
 ## Assignment 2 core tasks

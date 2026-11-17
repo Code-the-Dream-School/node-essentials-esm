@@ -29,7 +29,7 @@ paginate: true
 - Warm-Up
 - Why Automated Testing?
 - Testing Concepts
-- Jest Basics
+- Vitest Basics
 - Supertest for API Testing
 - Writing Good Tests
 - Assignment Preview
@@ -89,11 +89,11 @@ For this lesson, you'll write:
 
 ---
 
-# Jest Basics
+# Vitest Basics
 
 ```js
 // math.test.js
-const { add } = require("./math");
+import { add } from "./math.js";
 
 describe("add function", () => {
   it("should return 5 when adding 2 and 3", () => {
@@ -106,11 +106,11 @@ describe("add function", () => {
 });
 ```
 
-Run with: `npx jest` or `npm test`
+Run with: `npx vitest` or `npm run test`
 
 ---
 
-# Jest: Common Matchers
+# Vitest: Common Matchers
 
 ```js
 expect(value).toBe(5)            // strict equality (primitives)
@@ -146,8 +146,8 @@ If you forget `await`, the test may pass even when it should fail.
 Supertest sends real HTTP requests to your Express app without needing a running server:
 
 ```js
-const request = require("supertest");
-const { app } = require("../app");
+import request from "supertest";
+import { app } from "../app.js";
 
 it("should return 200 for GET /api/tasks", async () => {
   const res = await request(app)
@@ -223,10 +223,10 @@ it("should return 400 for missing title", async () => {
 
 # Code Coverage
 
-Jest can tell you how much of your code is tested:
+Vitest can tell you how much of your code is tested:
 
 ```bash
-npx jest --coverage
+npx vitest --coverage
 ```
 
 Output shows lines, branches, and functions that were never executed during tests.
@@ -316,7 +316,7 @@ How confident do you feel writing automated tests this week?
 
 # Resources
 
-- https://jestjs.io/docs/expect (all Jest matchers)
+- https://vitest.dev/api/expect (all Vitest matchers)
 - https://www.npmjs.com/package/supertest
 - https://www.functionize.com/automated-testing (testing concepts overview)
 - Ask questions in Slack
@@ -326,7 +326,7 @@ How confident do you feel writing automated tests this week?
 # Closing
 
 **This week:**
-Automated testing — Jest, supertest, and TDD.
+Automated testing — Vitest, supertest, and TDD.
 
 **Next week:**
 Deployment — get your app onto the real Internet using Neon and Render.
